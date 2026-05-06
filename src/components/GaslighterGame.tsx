@@ -11,14 +11,39 @@ type Keys = Record<string, boolean>;
 
 export default function GaslighterGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GameState>(createInitialState());
   const keysRef = useRef<Keys>({});
   const [, force] = useState(0);
   const rerender = () => force((n) => n + 1);
 
   useEffect(() => {
-    const id = setInterval(rerender, 100);
+    const id = setInterval(rerender, 120);
     return () => clearInterval(id);
+  }, []);
+
+  // Resize canvas backing-store to fit container while keeping pixel-art crisp
+  useEffect(() => {
+    const resize = () => {
+      const c = canvasRef.current, w = wrapRef.current;
+      if (!c || !w) return;
+      const rect = w.getBoundingClientRect();
+      // Internal resolution: scale so a tile is ~ 22-30px on screen
+      const targetTile = 28;
+      const cw = Math.max(320, Math.floor(rect.width));
+      const ch = Math.max(240, Math.floor(rect.height));
+      // backing resolution is roughly cw/scaleFactor for pixel feel
+      const scale = Math.max(1, Math.round((cw / (MAP_W * TILE)) * (targetTile / TILE)));
+      const internalW = Math.max(380, Math.floor(cw / scale));
+      const internalH = Math.max(260, Math.floor(ch / scale));
+      c.width = internalW;
+      c.height = internalH;
+      c.style.width = cw + "px";
+      c.style.height = ch + "px";
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
   }, []);
 
   useEffect(() => {
@@ -27,7 +52,6 @@ export default function GaslighterGame() {
     ctx.imageSmoothingEnabled = false;
     let raf = 0;
     let last = performance.now();
-
     const loop = (t: number) => {
       const dt = Math.min(0.05, (t - last) / 1000);
       last = t;
@@ -36,6 +60,7 @@ export default function GaslighterGame() {
       const viewW = canvas.width, viewH = canvas.height;
       s.cam.x = Math.max(0, Math.min(MAP_W * TILE - viewW, s.player.x - viewW / 2));
       s.cam.y = Math.max(0, Math.min(MAP_H * TILE - viewH, s.player.y - viewH / 2));
+      ctx.imageSmoothingEnabled = false;
       drawScene(ctx, s, viewW, viewH);
       drawSprites(ctx, s);
       raf = requestAnimationFrame(loop);
@@ -48,15 +73,11 @@ export default function GaslighterGame() {
     const down = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
       keysRef.current[k] = true;
-      if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(e.key.toLowerCase()) || e.key === " ") {
-        e.preventDefault();
-      }
+      if (["arrowup","arrowdown","arrowleft","arrowright"].includes(k) || e.key === " ") e.preventDefault();
     };
     const up = (e: KeyboardEvent) => { keysRef.current[e.key.toLowerCase()] = false; };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
-    // ensure focus
-    window.focus();
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
@@ -66,28 +87,34 @@ export default function GaslighterGame() {
   const s = stateRef.current;
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground flex flex-col items-center p-2 gap-2 select-none">
-      <header className="w-full max-w-[1200px] flex items-center justify-between px-1">
-        <h1 className="pixel-font text-primary text-shadow-pixel text-base md:text-2xl">
+    <div className="fixed inset-0 bg-background text-foreground flex flex-col select-none overflow-hidden">
+      {/* Compact top bar */}
+      <div className="flex items-center justify-between px-2 py-1 gap-2 border-b-2 border-border bg-card/60 backdrop-blur">
+        <h1 className="pixel-font text-primary text-shadow-pixel text-[10px] sm:text-base whitespace-nowrap">
           ⛽ GASLIGHTER
         </h1>
-        <p className="pixel-font text-[8px] md:text-xs text-muted-foreground hidden sm:block">
-          WASD/Arrows · SPACE pump · E upgrade
-        </p>
-      </header>
+        <HUD state={s} />
+      </div>
 
-      <HUD state={s} />
-
-      <div className="relative panel w-full max-w-[1200px]">
+      {/* Big game stage */}
+      <div ref={wrapRef} className="relative flex-1 min-h-0 bg-[#0e1626]">
         <canvas
           ref={canvasRef}
-          width={800}
-          height={500}
           tabIndex={0}
           onClick={(e) => (e.currentTarget as HTMLCanvasElement).focus()}
-          className="block w-full h-auto outline-none"
-          style={{ aspectRatio: "8/5", imageRendering: "pixelated" }}
+          className="block outline-none mx-auto"
+          style={{ imageRendering: "pixelated" }}
         />
+
+        {/* Floating touch controls overlay */}
+        <TouchControls keysRef={keysRef} state={s} />
+
+        {s.bonusActive > 0 && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 panel px-3 py-1 pixel-font text-[10px] text-primary text-shadow-pixel">
+            x2 BONUS · {s.bonusActive.toFixed(1)}s
+          </div>
+        )}
+
         {s.upgradeOpen && <UpgradePanel state={s} onClose={() => { s.upgradeOpen = false; rerender(); }} />}
         {s.miniGame && (
           <MiniGame
@@ -100,13 +127,6 @@ export default function GaslighterGame() {
           />
         )}
       </div>
-
-      <TouchControls keysRef={keysRef} state={s} onUpgrade={() => { s.upgradeOpen = true; rerender(); }} />
-
-      <footer className="pixel-font text-[8px] md:text-[9px] text-muted-foreground max-w-[900px] text-center leading-relaxed px-2">
-        Walk to a vehicle and hold PUMP/SPACE to fuel up. Bigger tanks = bigger payday.
-        Serve the gold-star VIPs first! Random tire & ×2 bonus rounds will pop up.
-      </footer>
     </div>
   );
 }

@@ -145,50 +145,47 @@ function drawBush(ctx: CanvasRenderingContext2D, x: number, y: number) {
 }
 
 function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number) {
-  // dark asphalt
-  ctx.fillStyle = "#23262e";
+  // light cartoony pavement
+  ctx.fillStyle = "#b8b8b8";
   ctx.fillRect(0, y, MAP_W * TILE, h);
-  // asphalt grain (deterministic noise)
-  for (let i = 0; i < 200; i++) {
+  // pavement speckle
+  for (let i = 0; i < 240; i++) {
     const px = (i * 53) % (MAP_W * TILE);
     const py = y + ((i * 17) % h);
-    ctx.fillStyle = i % 3 ? "#2a2d36" : "#1c1f26";
+    ctx.fillStyle = i % 3 ? "#a8a8a8" : "#c8c8c8";
     ctx.fillRect(px, py, 1, 1);
   }
-  // curbs (white + dark)
-  ctx.fillStyle = "#e8eaf0";
-  ctx.fillRect(0, y - 1, MAP_W * TILE, 1);
-  ctx.fillRect(0, y + h, MAP_W * TILE, 1);
-  ctx.fillStyle = "#0e1019";
-  ctx.fillRect(0, y, MAP_W * TILE, 1);
-  ctx.fillRect(0, y + h - 1, MAP_W * TILE, 1);
-  // dashed center line
-  ctx.fillStyle = "#f2cf4d";
-  for (let x = 0; x < MAP_W * TILE; x += 28) {
+  // soft curbs
+  ctx.fillStyle = "#8a8a8a";
+  ctx.fillRect(0, y - 1, MAP_W * TILE, 2);
+  ctx.fillRect(0, y + h - 1, MAP_W * TILE, 2);
+  // subtle dashed center line
+  ctx.fillStyle = "#F9B91B";
+  for (let x = 0; x < MAP_W * TILE; x += 32) {
     ctx.fillRect(x, y + h / 2 - 1, 14, 2);
   }
 }
 
 function drawConcrete(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  // base
-  ctx.fillStyle = "#7d7d7d";
+  // light station pad
+  ctx.fillStyle = "#cfcfcf";
   ctx.fillRect(x, y, w, h);
-  // light highlight band
-  ctx.fillStyle = "#8a8a8a";
+  // top highlight
+  ctx.fillStyle = "#dcdcdc";
   ctx.fillRect(x, y, w, 4);
-  // expansion joints (grid)
-  ctx.fillStyle = "#4d4d4d";
+  // expansion joints
+  ctx.fillStyle = "#9a9a9a";
   for (let i = 0; i <= w; i += 48) ctx.fillRect(x + i, y, 1, h);
   for (let i = 0; i <= h; i += 48) ctx.fillRect(x, y + i, w, 1);
-  // speckle texture
+  // speckle
   for (let i = 0; i < 180; i++) {
     const px = x + ((i * 47) % w);
     const py = y + ((i * 31) % h);
-    ctx.fillStyle = i % 2 ? "#8a8a8a" : "#7a808d";
+    ctx.fillStyle = i % 2 ? "#dcdcdc" : "#b8b8b8";
     ctx.fillRect(px, py, 1, 1);
   }
-  // dark border
-  ctx.fillStyle = "#404040";
+  // soft border
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x, y, w, 2);
   ctx.fillRect(x, y + h - 2, w, 2);
   ctx.fillRect(x, y, 2, h);

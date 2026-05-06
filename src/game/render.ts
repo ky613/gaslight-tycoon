@@ -357,37 +357,78 @@ function drawLockedPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
 }
 
 function drawPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  // base
-  ctx.fillStyle = "#2a2d34";
-  ctx.fillRect(x - 8, y + 14, 16, 4);
-  // body (red)
-  ctx.fillStyle = "#c93232";
-  ctx.fillRect(x - 7, y - 4, 14, 18);
-  // top highlight
-  ctx.fillStyle = "#e85050";
-  ctx.fillRect(x - 7, y - 4, 14, 2);
-  // screen
-  ctx.fillStyle = "#1a2436";
-  ctx.fillRect(x - 5, y - 1, 10, 5);
-  ctx.fillStyle = "#62c46a";
-  ctx.fillRect(x - 4, y, 2, 1);
-  ctx.fillRect(x - 1, y, 2, 1);
-  ctx.fillRect(x + 2, y, 2, 1);
-  // logo stripe
+  // base concrete pad
+  ctx.fillStyle = "#5a5e68";
+  ctx.fillRect(x - 12, y + 16, 24, 5);
+  ctx.fillStyle = "#7d8290";
+  ctx.fillRect(x - 12, y + 16, 24, 1);
+  // bumper posts (yellow/black)
+  ctx.fillStyle = "#1a1a1a";
+  ctx.fillRect(x - 11, y + 12, 2, 5);
+  ctx.fillRect(x + 9, y + 12, 2, 5);
   ctx.fillStyle = "#ffd84a";
-  ctx.fillRect(x - 7, y + 7, 14, 2);
-  // hose
-  ctx.strokeStyle = "#1a1a1a";
+  ctx.fillRect(x - 11, y + 13, 2, 1);
+  ctx.fillRect(x + 9, y + 13, 2, 1);
+
+  // body shadow side
+  ctx.fillStyle = "#7a1f1f";
+  ctx.fillRect(x + 6, y - 6, 3, 22);
+  // body main
+  ctx.fillStyle = "#c93232";
+  ctx.fillRect(x - 8, y - 6, 14, 22);
+  // body top highlight
+  ctx.fillStyle = "#e85050";
+  ctx.fillRect(x - 8, y - 6, 14, 2);
+  ctx.fillStyle = "#f87070";
+  ctx.fillRect(x - 8, y - 6, 1, 22);
+
+  // top cap
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 9, y - 9, 16, 4);
+  ctx.fillStyle = "#3a4a5a";
+  ctx.fillRect(x - 9, y - 9, 16, 1);
+
+  // screen panel
+  ctx.fillStyle = "#0e1626";
+  ctx.fillRect(x - 6, y - 3, 12, 7);
+  ctx.fillStyle = "#62c46a";
+  ctx.fillRect(x - 5, y - 2, 10, 1);
+  ctx.fillStyle = "#3aa84e";
+  ctx.fillRect(x - 5, y, 2, 1);
+  ctx.fillRect(x - 2, y, 2, 1);
+  ctx.fillRect(x + 1, y, 2, 1);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x - 5, y + 2, 4, 1);
+
+  // logo stripe (yellow with text)
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 8, y + 6, 14, 4);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x - 8, y + 7, 14, 2);
+
+  // nozzle holster on side
+  ctx.fillStyle = "#1a1a1a";
+  ctx.fillRect(x + 6, y + 11, 5, 5);
+  // hose curving down
+  ctx.strokeStyle = "#0e0e0e";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(x + 7, y + 6);
-  ctx.quadraticCurveTo(x + 14, y + 12, x + 11, y + 18);
+  ctx.moveTo(x + 8, y + 4);
+  ctx.bezierCurveTo(x + 16, y + 6, x + 16, y + 14, x + 11, y + 14);
   ctx.stroke();
-  // nozzle
-  ctx.fillStyle = "#2a2d34";
-  ctx.fillRect(x + 9, y + 17, 5, 3);
+  // nozzle gun
+  ctx.fillStyle = "#3a3e48";
+  ctx.fillRect(x + 8, y + 12, 5, 4);
   ctx.fillStyle = "#888d9b";
-  ctx.fillRect(x + 12, y + 18, 2, 1);
+  ctx.fillRect(x + 11, y + 13, 2, 2);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x + 8, y + 12, 1, 1);
+
+  // small price card on top
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(x - 4, y - 13, 8, 4);
+  ctx.fillStyle = "#c93232";
+  ctx.fillRect(x - 3, y - 12, 6, 2);
 }
 
 function drawTree(ctx: CanvasRenderingContext2D, x: number, y: number) {

@@ -26,13 +26,19 @@ export function drawScene(ctx: CanvasRenderingContext2D, s: GameState, vw: numbe
   drawCanopy(ctx, 23 * TILE, 9 * TILE, 28 * TILE, 4 * TILE);
   drawCanopy(ctx, 23 * TILE, 17 * TILE, 28 * TILE, 4 * TILE);
 
-  // pumps
-  for (const p of PUMPS) drawPump(ctx, p.x, p.y);
+  // pumps (only show unlocked; locked are faded with padlock)
+  const activePumps = 2 + s.upgrades.pumps;
+  for (let i = 0; i < PUMPS.length; i++) {
+    const p = PUMPS[i];
+    if (i < activePumps) drawPump(ctx, p.x, p.y);
+    else drawLockedPump(ctx, p.x, p.y);
+  }
 
-  // parking lines
+  // parking lines (only for unlocked)
   ctx.strokeStyle = "#f8e6a0";
   ctx.lineWidth = 1;
-  for (const sp of PUMP_SPOTS) {
+  for (let i = 0; i < activePumps; i++) {
+    const sp = PUMP_SPOTS[i];
     ctx.strokeRect(sp.x - 14, sp.y - 8, 28, 16);
   }
 

@@ -3,7 +3,7 @@ import { MAP_H, MAP_W, PUMPS, PUMP_SPOTS, SHOP, TILE } from "./world";
 
 export function drawScene(ctx: CanvasRenderingContext2D, s: GameState, vw: number, vh: number) {
   // sky/ground background
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(0, 0, vw, vh);
 
   ctx.save();
@@ -82,7 +82,7 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
     ctx.save();
     ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, 0, ctx.canvas.width, 22);
-    ctx.fillStyle = "#ffd84a";
+    ctx.fillStyle = "#F9B91B";
     ctx.font = "10px 'Press Start 2P', monospace";
     ctx.textAlign = "center";
     ctx.fillText(`x2 BONUS! ${s.bonusActive.toFixed(1)}s`, ctx.canvas.width / 2, 15);
@@ -94,10 +94,10 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
 
 function drawGrass(ctx: CanvasRenderingContext2D) {
   // base grass with subtle gradient bands
-  ctx.fillStyle = "#3a7a47";
+  ctx.fillStyle = "#4B7D1D";
   ctx.fillRect(0, 0, MAP_W * TILE, MAP_H * TILE);
   // soft tile checker
-  ctx.fillStyle = "#347040";
+  ctx.fillStyle = "#3F6B18";
   for (let y = 0; y < MAP_H; y++) {
     for (let x = 0; x < MAP_W; x++) {
       if ((x + y) % 2 === 0) ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
@@ -121,14 +121,14 @@ function drawGrass(ctx: CanvasRenderingContext2D) {
       // flower white
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(x, y, 2, 2);
-      ctx.fillStyle = "#ffd84a";
+      ctx.fillStyle = "#F9B91B";
       ctx.fillRect(x, y, 1, 1);
     } else if (r === 5) {
       // flower pink
       ctx.fillStyle = "#ff8ab8";
       ctx.fillRect(x, y, 2, 2);
     } else {
-      ctx.fillStyle = "#2c5e3a";
+      ctx.fillStyle = "#3a5e1f";
       ctx.fillRect(x, y, 1, 3);
     }
   }
@@ -161,24 +161,24 @@ function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number) {
 
 function drawConcrete(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
   // base
-  ctx.fillStyle = "#8b909c";
+  ctx.fillStyle = "#7d7d7d";
   ctx.fillRect(x, y, w, h);
   // light highlight band
-  ctx.fillStyle = "#9aa0ad";
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x, y, w, 4);
   // expansion joints (grid)
-  ctx.fillStyle = "#6e7380";
+  ctx.fillStyle = "#4d4d4d";
   for (let i = 0; i <= w; i += 48) ctx.fillRect(x + i, y, 1, h);
   for (let i = 0; i <= h; i += 48) ctx.fillRect(x, y + i, w, 1);
   // speckle texture
   for (let i = 0; i < 180; i++) {
     const px = x + ((i * 47) % w);
     const py = y + ((i * 31) % h);
-    ctx.fillStyle = i % 2 ? "#9aa0ad" : "#7a808d";
+    ctx.fillStyle = i % 2 ? "#8a8a8a" : "#7a808d";
     ctx.fillRect(px, py, 1, 1);
   }
   // dark border
-  ctx.fillStyle = "#3a3e48";
+  ctx.fillStyle = "#404040";
   ctx.fillRect(x, y, w, 2);
   ctx.fillRect(x, y + h - 2, w, 2);
   ctx.fillRect(x, y, 2, h);
@@ -196,34 +196,34 @@ function drawCanopy(ctx: CanvasRenderingContext2D, x: number, y: number, w: numb
   ctx.fillRect(x + Math.floor(w / 2) - 8, y + h, 5, 12);
   ctx.fillRect(x + Math.floor(w / 2) + 3, y + h, 5, 12);
   // pillar shadow side
-  ctx.fillStyle = "#9aa0ad";
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x + 6, y + h, 1, 12);
   ctx.fillRect(x + w - 3, y + h, 1, 12);
   // pillar bases (concrete)
-  ctx.fillStyle = "#5a5e68";
+  ctx.fillStyle = "#595959";
   ctx.fillRect(x + 1, y + h + 11, 7, 2);
   ctx.fillRect(x + w - 8, y + h + 11, 7, 2);
   ctx.fillRect(x + Math.floor(w / 2) - 9, y + h + 11, 7, 2);
   ctx.fillRect(x + Math.floor(w / 2) + 2, y + h + 11, 7, 2);
   // roof main
-  ctx.fillStyle = "#c43a3a";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x, y, w, h);
   // roof top highlight
-  ctx.fillStyle = "#e85050";
+  ctx.fillStyle = "#F04040";
   ctx.fillRect(x, y, w, 2);
   // white stripe
-  ctx.fillStyle = "#fff3c0";
+  ctx.fillStyle = "#F7F9F9";
   ctx.fillRect(x, y + h - 5, w, 2);
   // bottom shadow band
-  ctx.fillStyle = "#8a2424";
+  ctx.fillStyle = "#660011";
   ctx.fillRect(x, y + h - 2, w, 2);
   // logo plate in middle
   const lx = x + Math.floor(w / 2) - 14, ly = y + 1;
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(lx, ly, 28, h - 4);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(lx + 1, ly + 1, 26, h - 6);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.font = "5px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
   ctx.fillText("GASLIGHTER", lx + 14, ly + Math.floor(h / 2) + 1);
@@ -246,21 +246,21 @@ function drawShop(ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "#a88550";
   ctx.fillRect(x, y + h - 4, w, 1);
   // roof slab
-  ctx.fillStyle = "#7a2424";
+  ctx.fillStyle = "#660011";
   ctx.fillRect(x - 3, y - 8, w + 6, 10);
-  ctx.fillStyle = "#a23838";
+  ctx.fillStyle = "#990018";
   ctx.fillRect(x - 3, y - 8, w + 6, 6);
   ctx.fillStyle = "#c44545";
   ctx.fillRect(x - 3, y - 8, w + 6, 2);
   // roof tile lines
-  ctx.fillStyle = "#7a2424";
+  ctx.fillStyle = "#660011";
   for (let i = 0; i < w + 6; i += 6) ctx.fillRect(x - 3 + i, y - 8, 1, 6);
   // sign awning
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x + 4, y + 4, w - 8, 9);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x + 5, y + 5, w - 10, 7);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.font = "5px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
   ctx.fillText("SHOP", x + w / 2, y + 10);
@@ -270,12 +270,12 @@ function drawShop(ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "#5b3a22";
   ctx.fillRect(x + w / 2 - 6, y + h - 21, 12, 16);
   // door window
-  ctx.fillStyle = "#a8e0f5";
+  ctx.fillStyle = "#43B2D6";
   ctx.fillRect(x + w / 2 - 4, y + h - 19, 8, 6);
-  ctx.fillStyle = "#7ec8e3";
+  ctx.fillStyle = "#1D55A4";
   ctx.fillRect(x + w / 2 - 4, y + h - 17, 8, 1);
   // doorknob
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x + w / 2 + 4, y + h - 12, 1, 2);
   // big windows
   drawWindow(ctx, x + 5, y + 18);
@@ -283,7 +283,7 @@ function drawShop(ctx: CanvasRenderingContext2D) {
   // potted plant
   ctx.fillStyle = "#8a6a3a";
   ctx.fillRect(x + 2, y + h - 6, 4, 3);
-  ctx.fillStyle = "#1f5a2a";
+  ctx.fillStyle = "#4B7D1D";
   ctx.fillRect(x + 1, y + h - 9, 6, 4);
   ctx.fillStyle = "#3c8049";
   ctx.fillRect(x + 2, y + h - 10, 2, 2);
@@ -295,10 +295,10 @@ function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillStyle = "#3a2a18";
   ctx.fillRect(x, y, 12, 14);
   // glass
-  ctx.fillStyle = "#7ec8e3";
+  ctx.fillStyle = "#1D55A4";
   ctx.fillRect(x + 1, y + 1, 10, 12);
   // light reflection
-  ctx.fillStyle = "#a8e0f5";
+  ctx.fillStyle = "#43B2D6";
   ctx.fillRect(x + 1, y + 1, 10, 3);
   ctx.fillRect(x + 1, y + 6, 4, 1);
   // mullions
@@ -312,26 +312,26 @@ function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number) {
 
 function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number) {
   // pole (with base)
-  ctx.fillStyle = "#5a5e68";
+  ctx.fillStyle = "#595959";
   ctx.fillRect(x + 12, y + 14, 4, 32);
-  ctx.fillStyle = "#9aa0ad";
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x + 13, y + 14, 1, 32);
-  ctx.fillStyle = "#3a3e48";
+  ctx.fillStyle = "#404040";
   ctx.fillRect(x + 9, y + 44, 10, 3);
   // big square sign
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 10, y - 4, 48, 22);
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x - 8, y - 2, 44, 18);
   // gold inner
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 7, y - 1, 42, 9);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.font = "5px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
   ctx.fillText("UPGRADE", x + 14, y + 5);
   // price LED
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 6, y + 9, 40, 7);
   ctx.fillStyle = "#62c46a";
   ctx.font = "5px 'Press Start 2P', monospace";
@@ -343,14 +343,14 @@ function drawLockedPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
   drawPump(ctx, x, y);
   ctx.globalAlpha = 1;
   // padlock
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 4, y + 2, 8, 7);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 3, y + 3, 6, 5);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 1, y + 5, 2, 2);
   // shackle
-  ctx.fillStyle = "#9aa0ad";
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x - 3, y, 1, 3);
   ctx.fillRect(x + 2, y, 1, 3);
   ctx.fillRect(x - 3, y - 1, 6, 1);
@@ -358,38 +358,38 @@ function drawLockedPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
 
 function drawPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
   // base concrete pad
-  ctx.fillStyle = "#5a5e68";
+  ctx.fillStyle = "#595959";
   ctx.fillRect(x - 12, y + 16, 24, 5);
-  ctx.fillStyle = "#7d8290";
+  ctx.fillStyle = "#6e6e6e";
   ctx.fillRect(x - 12, y + 16, 24, 1);
   // bumper posts (yellow/black)
   ctx.fillStyle = "#1a1a1a";
   ctx.fillRect(x - 11, y + 12, 2, 5);
   ctx.fillRect(x + 9, y + 12, 2, 5);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 11, y + 13, 2, 1);
   ctx.fillRect(x + 9, y + 13, 2, 1);
 
   // body shadow side
-  ctx.fillStyle = "#7a1f1f";
+  ctx.fillStyle = "#660011";
   ctx.fillRect(x + 6, y - 6, 3, 22);
   // body main
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x - 8, y - 6, 14, 22);
   // body top highlight
-  ctx.fillStyle = "#e85050";
+  ctx.fillStyle = "#F04040";
   ctx.fillRect(x - 8, y - 6, 14, 2);
   ctx.fillStyle = "#f87070";
   ctx.fillRect(x - 8, y - 6, 1, 22);
 
   // top cap
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 9, y - 9, 16, 4);
-  ctx.fillStyle = "#3a4a5a";
+  ctx.fillStyle = "#1D55A4";
   ctx.fillRect(x - 9, y - 9, 16, 1);
 
   // screen panel
-  ctx.fillStyle = "#0e1626";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 6, y - 3, 12, 7);
   ctx.fillStyle = "#62c46a";
   ctx.fillRect(x - 5, y - 2, 10, 1);
@@ -397,13 +397,13 @@ function drawPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillRect(x - 5, y, 2, 1);
   ctx.fillRect(x - 2, y, 2, 1);
   ctx.fillRect(x + 1, y, 2, 1);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 5, y + 2, 4, 1);
 
   // logo stripe (yellow with text)
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 8, y + 6, 14, 4);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 8, y + 7, 14, 2);
 
   // nozzle holster on side
@@ -417,27 +417,27 @@ function drawPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.bezierCurveTo(x + 16, y + 6, x + 16, y + 14, x + 11, y + 14);
   ctx.stroke();
   // nozzle gun
-  ctx.fillStyle = "#3a3e48";
+  ctx.fillStyle = "#404040";
   ctx.fillRect(x + 8, y + 12, 5, 4);
   ctx.fillStyle = "#888d9b";
   ctx.fillRect(x + 11, y + 13, 2, 2);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x + 8, y + 12, 1, 1);
 
   // small price card on top
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(x - 4, y - 13, 8, 4);
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x - 3, y - 12, 6, 2);
 }
 
 function drawTree(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillStyle = "#5b3a22";
   ctx.fillRect(x - 1, y + 8, 3, 6);
-  ctx.fillStyle = "#1f5a2a";
+  ctx.fillStyle = "#4B7D1D";
   ctx.fillRect(x - 6, y, 13, 10);
   ctx.fillRect(x - 4, y - 4, 9, 6);
-  ctx.fillStyle = "#2c7a3a";
+  ctx.fillStyle = "#5d9626";
   ctx.fillRect(x - 5, y, 11, 2);
   ctx.fillRect(x - 3, y - 4, 7, 2);
 }
@@ -452,7 +452,7 @@ function drawCone(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.lineTo(x + 3, y + 6);
   ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = "#fff3c0";
+  ctx.fillStyle = "#F7F9F9";
   ctx.fillRect(x - 2, y + 1, 4, 1);
 }
 
@@ -469,10 +469,10 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
   ctx.fillRect(x - 5, y + 10, 10, 1);
 
   // legs (navy with boot toes)
-  ctx.fillStyle = "#1f3a6e";
+  ctx.fillStyle = "#1D55A4";
   ctx.fillRect(x - 4, y + 4 + bob, 3, 5);
   ctx.fillRect(x + 1, y + 4 - bob, 3, 5);
-  ctx.fillStyle = "#0e1a3a";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 4, y + 8 + bob, 3, 1);
   ctx.fillRect(x + 1, y + 8 - bob, 3, 1);
   // boots (black)
@@ -481,35 +481,35 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
   ctx.fillRect(x + 1, y + 9 - bob, 4, 1);
 
   // body coveralls (red) with shading
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x - 5, y - 3, 10, 8);
   // shadow side
-  ctx.fillStyle = "#a02828";
+  ctx.fillStyle = "#990018";
   ctx.fillRect(x + 3, y - 3, 2, 8);
   // highlight
-  ctx.fillStyle = "#e85050";
+  ctx.fillStyle = "#F04040";
   ctx.fillRect(x - 5, y - 3, 1, 8);
   // chest yellow stripe with name patch
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 5, y, 10, 2);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 4, y, 1, 1);
   ctx.fillRect(x + 3, y, 1, 1);
   // collar
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 3, y - 3, 6, 1);
   // belt
   ctx.fillStyle = "#1a1a1a";
   ctx.fillRect(x - 5, y + 4, 10, 1);
   // belt buckle
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 1, y + 4, 2, 1);
   // pocket
-  ctx.fillStyle = "#a02828";
+  ctx.fillStyle = "#990018";
   ctx.fillRect(x - 4, y + 2, 3, 2);
 
   // arms (swing)
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   if (!p.pumping) {
     ctx.fillRect(x - 7, y - 2 + armSwing, 2, 5);
     ctx.fillRect(x + 5, y - 2 - armSwing, 2, 5);
@@ -542,20 +542,20 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
   ctx.fillRect(x + 3, y - 7, 1, 3);
 
   // cap (red with yellow front and visor)
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x - 5, y - 13, 10, 4);
-  ctx.fillStyle = "#e85050";
+  ctx.fillStyle = "#F04040";
   ctx.fillRect(x - 5, y - 13, 10, 1);
   // hat band
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 5, y - 10, 10, 1);
   // hat front patch (yellow with G)
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 2, y - 12, 4, 2);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 1, y - 11, 2, 1);
   // visor by direction
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   if (p.facing === "down") {
     ctx.fillRect(x - 5, y - 9, 10, 1);
   } else if (p.facing === "left") {
@@ -567,7 +567,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
   }
 
   // eyes
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   if (p.facing === "down") {
     ctx.fillRect(x - 2, y - 7, 1, 1);
     ctx.fillRect(x + 1, y - 7, 1, 1);
@@ -581,7 +581,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
 
   // pump nozzle in hands when pumping
   if (p.pumping) {
-    ctx.fillStyle = "#3a3e48";
+    ctx.fillStyle = "#404040";
     ctx.fillRect(x + 5, y - 1, 6, 3);
     ctx.fillStyle = "#888d9b";
     ctx.fillRect(x + 10, y, 2, 1);
@@ -594,7 +594,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
     ctx.stroke();
     // fuel sparkle
     if ((p.walkT * 4) % 1 < 0.5) {
-      ctx.fillStyle = "#ffd84a";
+      ctx.fillStyle = "#F9B91B";
       ctx.fillRect(x + 12, y - 2, 1, 1);
       ctx.fillRect(x + 13, y - 1, 1, 1);
     }
@@ -616,10 +616,10 @@ function drawVehicle(ctx: CanvasRenderingContext2D, v: Vehicle) {
 
   if (v.vip) {
     // gold star
-    ctx.fillStyle = "#ffd84a";
+    ctx.fillStyle = "#F9B91B";
     ctx.fillRect(x - 1, y - 18, 2, 6);
     ctx.fillRect(x - 3, y - 16, 6, 2);
-    ctx.fillStyle = "#fff3c0";
+    ctx.fillStyle = "#F7F9F9";
     ctx.fillRect(x, y - 17, 1, 1);
   }
 }
@@ -633,7 +633,7 @@ function drawCar(ctx: CanvasRenderingContext2D, x: number, y: number, color: str
   ctx.fillStyle = shade(color, -25);
   ctx.fillRect(x - 14, y + 4, 28, 2);
   // windows
-  ctx.fillStyle = "#a8e0f5";
+  ctx.fillStyle = "#43B2D6";
   ctx.fillRect(x - 8, y - 6, 7, 4);
   ctx.fillRect(x + 1, y - 6, 7, 4);
   ctx.fillStyle = shade(color, 20);
@@ -642,9 +642,9 @@ function drawCar(ctx: CanvasRenderingContext2D, x: number, y: number, color: str
   drawWheel(ctx, x - 9, y + 6);
   drawWheel(ctx, x + 9, y + 6);
   // headlights
-  ctx.fillStyle = "#fff3c0";
+  ctx.fillStyle = "#F7F9F9";
   ctx.fillRect(x + 13, y, 2, 2);
-  ctx.fillStyle = "#c93232";
+  ctx.fillStyle = "#ED1C24";
   ctx.fillRect(x - 14, y, 1, 2);
 }
 
@@ -654,12 +654,12 @@ function drawVan(ctx: CanvasRenderingContext2D, x: number, y: number, color: str
   ctx.fillRect(x - 16, y - 9, 24, 6);
   ctx.fillStyle = shade(color, -25);
   ctx.fillRect(x - 16, y + 4, 32, 2);
-  ctx.fillStyle = "#a8e0f5";
+  ctx.fillStyle = "#43B2D6";
   ctx.fillRect(x - 15, y - 8, 8, 4);
   ctx.fillRect(x - 6, y - 8, 8, 4);
   drawWheel(ctx, x - 11, y + 6);
   drawWheel(ctx, x + 11, y + 6);
-  ctx.fillStyle = "#fff3c0";
+  ctx.fillStyle = "#F7F9F9";
   ctx.fillRect(x + 14, y, 2, 2);
 }
 
@@ -667,14 +667,14 @@ function drawTruck(ctx: CanvasRenderingContext2D, x: number, y: number, color: s
   // trailer
   ctx.fillStyle = "#d0d4dc";
   ctx.fillRect(x - 18, y - 8, 22, 14);
-  ctx.fillStyle = "#9aa0ad";
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x - 18, y + 4, 22, 2);
   ctx.fillStyle = "#5b6170";
   ctx.fillRect(x - 17, y - 7, 20, 2);
   // cab
   ctx.fillStyle = color;
   ctx.fillRect(x + 4, y - 5, 14, 11);
-  ctx.fillStyle = "#a8e0f5";
+  ctx.fillStyle = "#43B2D6";
   ctx.fillRect(x + 9, y - 4, 8, 5);
   drawWheel(ctx, x - 13, y + 6);
   drawWheel(ctx, x - 5, y + 6);
@@ -687,10 +687,10 @@ function drawBus(ctx: CanvasRenderingContext2D, x: number, y: number, color: str
   ctx.fillStyle = shade(color, -25);
   ctx.fillRect(x - 18, y + 4, 36, 2);
   // windows row
-  ctx.fillStyle = "#a8e0f5";
+  ctx.fillStyle = "#43B2D6";
   for (let i = 0; i < 5; i++) ctx.fillRect(x - 16 + i * 7, y - 7, 5, 5);
   // door
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x + 14, y - 4, 4, 9);
   drawWheel(ctx, x - 12, y + 6);
   drawWheel(ctx, x + 12, y + 6);
@@ -705,12 +705,12 @@ function drawLimo(ctx: CanvasRenderingContext2D, x: number, y: number, _color: s
   ctx.fillStyle = "#3a3a3a";
   ctx.fillRect(x - 20, y - 3, 40, 1);
   // tinted windows
-  ctx.fillStyle = "#3a4a5a";
+  ctx.fillStyle = "#1D55A4";
   ctx.fillRect(x - 13, y - 7, 8, 4);
   ctx.fillRect(x - 4, y - 7, 6, 4);
   ctx.fillRect(x + 3, y - 7, 8, 4);
   // gold trim
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.fillRect(x - 20, y + 2, 40, 1);
   drawWheel(ctx, x - 14, y + 6);
   drawWheel(ctx, x + 14, y + 6);
@@ -739,33 +739,33 @@ function drawVehicleBars(ctx: CanvasRenderingContext2D, v: Vehicle) {
   // fuel tank size indicator (yellow bar, width = priority)
   const tankPct = Math.min(1, v.tank / 170);
   const w = Math.floor(20 + tankPct * 26);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - w / 2 - 1, y - 1, w + 2, 6);
   // fill ratio shows tank size
-  ctx.fillStyle = v.vip ? "#ffd84a" : tankPct > 0.7 ? "#e85050" : tankPct > 0.4 ? "#f0b03e" : "#62c46a";
+  ctx.fillStyle = v.vip ? "#F9B91B" : tankPct > 0.7 ? "#F04040" : tankPct > 0.4 ? "#f0b03e" : "#62c46a";
   ctx.fillRect(x - w / 2, y, w, 4);
   ctx.fillStyle = "rgba(255,255,255,0.4)";
   ctx.fillRect(x - w / 2, y, w, 1);
 
   // fuel progress (filled / tank)
   const fillW = Math.floor(((v.filled / v.tank) || 0) * 24);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 13, y + 7, 26, 4);
-  ctx.fillStyle = "#7ec8e3";
+  ctx.fillStyle = "#1D55A4";
   ctx.fillRect(x - 12, y + 8, fillW, 2);
 
   // patience bar (small)
   const pct = Math.max(0, v.patience / v.maxPatience);
-  ctx.fillStyle = "#1a2436";
+  ctx.fillStyle = "#002147";
   ctx.fillRect(x - 13, y + 12, 26, 3);
-  ctx.fillStyle = pct > 0.5 ? "#62c46a" : pct > 0.25 ? "#f0b03e" : "#e85050";
+  ctx.fillStyle = pct > 0.5 ? "#62c46a" : pct > 0.25 ? "#f0b03e" : "#F04040";
   ctx.fillRect(x - 12, y + 13, Math.floor(pct * 24), 1);
 }
 
 function drawPrompt(ctx: CanvasRenderingContext2D, x: number, y: number, text: string) {
   ctx.fillStyle = "rgba(0,0,0,0.8)";
   ctx.fillRect(x - 26, y - 8, 52, 12);
-  ctx.fillStyle = "#ffd84a";
+  ctx.fillStyle = "#F9B91B";
   ctx.font = "6px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
   ctx.fillText(text, x, y);

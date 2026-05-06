@@ -2,20 +2,18 @@ import { GameState } from "@/game/state";
 
 export default function HUD({ state }: { state: GameState }) {
   return (
-    <div className="w-full max-w-[1100px] grid grid-cols-2 md:grid-cols-4 gap-2 pixel-font text-[10px]">
-      <Stat label="COINS" value={`$${Math.floor(state.coins)}`} accent />
-      <Stat label="SERVED" value={String(state.served)} />
-      <Stat label="QUEUE" value={`${state.vehicles.length} cars`} />
-      <Stat label="BONUS" value={state.bonusActive > 0 ? `x2 ${state.bonusActive.toFixed(1)}s` : "—"} />
+    <div className="flex items-center gap-1 sm:gap-2 pixel-font text-[8px] sm:text-[10px]">
+      <Stat label="$" value={Math.floor(state.coins).toString()} accent />
+      <Stat label="SVD" value={String(state.served)} />
+      <Stat label="CARS" value={`${state.vehicles.length}`} />
     </div>
   );
 }
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="panel p-2 flex flex-col gap-1">
-      <div className="text-muted-foreground text-[8px]">{label}</div>
-      <div className={accent ? "text-primary text-shadow-pixel" : "text-foreground"}>{value}</div>
+    <div className={`px-2 py-1 border-2 border-border bg-secondary/60 ${accent ? "text-primary text-shadow-pixel" : "text-foreground"}`}>
+      <span className="text-muted-foreground mr-1">{label}</span>{value}
     </div>
   );
 }

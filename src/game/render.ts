@@ -93,116 +93,249 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
 // ---------- helpers ----------
 
 function drawGrass(ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = "#2f6b3a";
+  // base grass with subtle gradient bands
+  ctx.fillStyle = "#3a7a47";
   ctx.fillRect(0, 0, MAP_W * TILE, MAP_H * TILE);
-  // checker pattern
-  ctx.fillStyle = "#286232";
+  // soft tile checker
+  ctx.fillStyle = "#347040";
   for (let y = 0; y < MAP_H; y++) {
     for (let x = 0; x < MAP_W; x++) {
       if ((x + y) % 2 === 0) ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
     }
   }
-  // little grass tufts
-  ctx.fillStyle = "#3c8049";
-  for (let i = 0; i < 60; i++) {
-    const x = (i * 137) % (MAP_W * TILE);
-    const y = (i * 71) % (MAP_H * TILE);
-    if (x > 22 * TILE && x < 52 * TILE && y > 7 * TILE && y < 26 * TILE) continue;
-    ctx.fillRect(x, y, 2, 2);
-    ctx.fillRect(x + 3, y + 1, 2, 2);
+  // darker patch beneath station
+  ctx.fillStyle = "rgba(0,0,0,0.08)";
+  ctx.fillRect(20 * TILE, 7 * TILE, 34 * TILE, 20 * TILE);
+  // pseudo-random grass tufts & flowers (deterministic)
+  for (let i = 0; i < 220; i++) {
+    const x = (i * 137 + 13) % (MAP_W * TILE);
+    const y = (i * 71 + 29) % (MAP_H * TILE);
+    if (x > 21 * TILE && x < 53 * TILE && y > 7 * TILE && y < 27 * TILE) continue;
+    const r = (i * 31) % 7;
+    if (r < 4) {
+      ctx.fillStyle = "#4a8a55";
+      ctx.fillRect(x, y, 2, 2);
+      ctx.fillStyle = "#5a9a65";
+      ctx.fillRect(x + 1, y + 1, 1, 1);
+    } else if (r === 4) {
+      // flower white
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(x, y, 2, 2);
+      ctx.fillStyle = "#ffd84a";
+      ctx.fillRect(x, y, 1, 1);
+    } else if (r === 5) {
+      // flower pink
+      ctx.fillStyle = "#ff8ab8";
+      ctx.fillRect(x, y, 2, 2);
+    } else {
+      ctx.fillStyle = "#2c5e3a";
+      ctx.fillRect(x, y, 1, 3);
+    }
   }
 }
 
 function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number) {
-  ctx.fillStyle = "#2a2d34";
+  // dark asphalt
+  ctx.fillStyle = "#23262e";
   ctx.fillRect(0, y, MAP_W * TILE, h);
-  // shoulder
-  ctx.fillStyle = "#3a3e48";
-  ctx.fillRect(0, y, MAP_W * TILE, 2);
-  ctx.fillRect(0, y + h - 2, MAP_W * TILE, 2);
-  // dashes
-  ctx.fillStyle = "#f0d36a";
-  for (let x = 0; x < MAP_W * TILE; x += 24) {
-    ctx.fillRect(x, y + h / 2 - 1, 12, 2);
+  // asphalt grain (deterministic noise)
+  for (let i = 0; i < 200; i++) {
+    const px = (i * 53) % (MAP_W * TILE);
+    const py = y + ((i * 17) % h);
+    ctx.fillStyle = i % 3 ? "#2a2d36" : "#1c1f26";
+    ctx.fillRect(px, py, 1, 1);
+  }
+  // curbs (white + dark)
+  ctx.fillStyle = "#e8eaf0";
+  ctx.fillRect(0, y - 1, MAP_W * TILE, 1);
+  ctx.fillRect(0, y + h, MAP_W * TILE, 1);
+  ctx.fillStyle = "#0e1019";
+  ctx.fillRect(0, y, MAP_W * TILE, 1);
+  ctx.fillRect(0, y + h - 1, MAP_W * TILE, 1);
+  // dashed center line
+  ctx.fillStyle = "#f2cf4d";
+  for (let x = 0; x < MAP_W * TILE; x += 28) {
+    ctx.fillRect(x, y + h / 2 - 1, 14, 2);
   }
 }
 
 function drawConcrete(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  ctx.fillStyle = "#7d8290";
+  // base
+  ctx.fillStyle = "#8b909c";
   ctx.fillRect(x, y, w, h);
-  ctx.fillStyle = "#888d9b";
-  for (let i = 0; i < w; i += 32) {
-    ctx.fillRect(x + i, y, 1, h);
+  // light highlight band
+  ctx.fillStyle = "#9aa0ad";
+  ctx.fillRect(x, y, w, 4);
+  // expansion joints (grid)
+  ctx.fillStyle = "#6e7380";
+  for (let i = 0; i <= w; i += 48) ctx.fillRect(x + i, y, 1, h);
+  for (let i = 0; i <= h; i += 48) ctx.fillRect(x, y + i, w, 1);
+  // speckle texture
+  for (let i = 0; i < 180; i++) {
+    const px = x + ((i * 47) % w);
+    const py = y + ((i * 31) % h);
+    ctx.fillStyle = i % 2 ? "#9aa0ad" : "#7a808d";
+    ctx.fillRect(px, py, 1, 1);
   }
-  for (let i = 0; i < h; i += 32) {
-    ctx.fillRect(x, y + i, w, 1);
-  }
-  // edge
-  ctx.fillStyle = "#4a4e58";
+  // dark border
+  ctx.fillStyle = "#3a3e48";
   ctx.fillRect(x, y, w, 2);
   ctx.fillRect(x, y + h - 2, w, 2);
+  ctx.fillRect(x, y, 2, h);
+  ctx.fillRect(x + w - 2, y, 2, h);
 }
 
 function drawCanopy(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  // shadow
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.fillRect(x + 2, y + h, w, 4);
-  // roof
+  // ground shadow
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.fillRect(x + 3, y + h + 1, w, 5);
+  // pillars (4 supports)
+  ctx.fillStyle = "#cdd2db";
+  ctx.fillRect(x + 2, y + h, 5, 12);
+  ctx.fillRect(x + w - 7, y + h, 5, 12);
+  ctx.fillRect(x + Math.floor(w / 2) - 8, y + h, 5, 12);
+  ctx.fillRect(x + Math.floor(w / 2) + 3, y + h, 5, 12);
+  // pillar shadow side
+  ctx.fillStyle = "#9aa0ad";
+  ctx.fillRect(x + 6, y + h, 1, 12);
+  ctx.fillRect(x + w - 3, y + h, 1, 12);
+  // pillar bases (concrete)
+  ctx.fillStyle = "#5a5e68";
+  ctx.fillRect(x + 1, y + h + 11, 7, 2);
+  ctx.fillRect(x + w - 8, y + h + 11, 7, 2);
+  ctx.fillRect(x + Math.floor(w / 2) - 9, y + h + 11, 7, 2);
+  ctx.fillRect(x + Math.floor(w / 2) + 2, y + h + 11, 7, 2);
+  // roof main
   ctx.fillStyle = "#c43a3a";
   ctx.fillRect(x, y, w, h);
+  // roof top highlight
   ctx.fillStyle = "#e85050";
   ctx.fillRect(x, y, w, 2);
-  // stripe
+  // white stripe
   ctx.fillStyle = "#fff3c0";
-  ctx.fillRect(x, y + h - 4, w, 2);
-  // support pillars
-  ctx.fillStyle = "#d0d4dc";
-  ctx.fillRect(x + 2, y + h, 4, 8);
-  ctx.fillRect(x + w - 6, y + h, 4, 8);
+  ctx.fillRect(x, y + h - 5, w, 2);
+  // bottom shadow band
+  ctx.fillStyle = "#8a2424";
+  ctx.fillRect(x, y + h - 2, w, 2);
+  // logo plate in middle
+  const lx = x + Math.floor(w / 2) - 14, ly = y + 1;
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(lx, ly, 28, h - 4);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(lx + 1, ly + 1, 26, h - 6);
+  ctx.fillStyle = "#1a2436";
+  ctx.font = "5px 'Press Start 2P', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("GASLIGHTER", lx + 14, ly + Math.floor(h / 2) + 1);
 }
 
 function drawShop(ctx: CanvasRenderingContext2D) {
-  const x = SHOP.x - 28, y = SHOP.y - 28, w = 56, h = 50;
-  // back wall
-  ctx.fillStyle = "#dcd3b8";
+  const x = SHOP.x - 32, y = SHOP.y - 30, w = 64, h = 56;
+  // ground shadow
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillRect(x + 2, y + h, w, 4);
+  // back wall (cream brick)
+  ctx.fillStyle = "#e6dcc0";
   ctx.fillRect(x, y, w, h);
-  // roof
+  // brick rows
+  ctx.fillStyle = "#d4c8a8";
+  for (let i = 0; i < h; i += 4) ctx.fillRect(x, y + i, w, 1);
+  // wall trim (bottom)
+  ctx.fillStyle = "#8a6a3a";
+  ctx.fillRect(x, y + h - 4, w, 4);
+  ctx.fillStyle = "#a88550";
+  ctx.fillRect(x, y + h - 4, w, 1);
+  // roof slab
+  ctx.fillStyle = "#7a2424";
+  ctx.fillRect(x - 3, y - 8, w + 6, 10);
   ctx.fillStyle = "#a23838";
-  ctx.fillRect(x - 2, y - 6, w + 4, 8);
+  ctx.fillRect(x - 3, y - 8, w + 6, 6);
   ctx.fillStyle = "#c44545";
-  ctx.fillRect(x - 2, y - 6, w + 4, 2);
+  ctx.fillRect(x - 3, y - 8, w + 6, 2);
+  // roof tile lines
+  ctx.fillStyle = "#7a2424";
+  for (let i = 0; i < w + 6; i += 6) ctx.fillRect(x - 3 + i, y - 8, 1, 6);
+  // sign awning
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x + 4, y + 4, w - 8, 9);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x + 5, y + 5, w - 10, 7);
+  ctx.fillStyle = "#1a2436";
+  ctx.font = "5px 'Press Start 2P', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("SHOP", x + w / 2, y + 10);
   // door
+  ctx.fillStyle = "#3a2a18";
+  ctx.fillRect(x + w / 2 - 7, y + h - 22, 14, 18);
   ctx.fillStyle = "#5b3a22";
-  ctx.fillRect(x + w / 2 - 6, y + h - 18, 12, 18);
-  ctx.fillStyle = "#f0d36a";
-  ctx.fillRect(x + w / 2 + 3, y + h - 9, 1, 2);
-  // window
-  ctx.fillStyle = "#7ec8e3";
-  ctx.fillRect(x + 6, y + 8, 14, 12);
-  ctx.fillRect(x + w - 20, y + 8, 14, 12);
+  ctx.fillRect(x + w / 2 - 6, y + h - 21, 12, 16);
+  // door window
   ctx.fillStyle = "#a8e0f5";
-  ctx.fillRect(x + 6, y + 8, 14, 3);
-  ctx.fillRect(x + w - 20, y + 8, 14, 3);
+  ctx.fillRect(x + w / 2 - 4, y + h - 19, 8, 6);
+  ctx.fillStyle = "#7ec8e3";
+  ctx.fillRect(x + w / 2 - 4, y + h - 17, 8, 1);
+  // doorknob
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x + w / 2 + 4, y + h - 12, 1, 2);
+  // big windows
+  drawWindow(ctx, x + 5, y + 18);
+  drawWindow(ctx, x + w - 17, y + 18);
+  // potted plant
+  ctx.fillStyle = "#8a6a3a";
+  ctx.fillRect(x + 2, y + h - 6, 4, 3);
+  ctx.fillStyle = "#1f5a2a";
+  ctx.fillRect(x + 1, y + h - 9, 6, 4);
+  ctx.fillStyle = "#3c8049";
+  ctx.fillRect(x + 2, y + h - 10, 2, 2);
+  ctx.fillRect(x + 4, y + h - 9, 2, 2);
+}
+
+function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number) {
   // frame
-  ctx.strokeStyle = "#3a2a18";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x + 6, y + 8, 14, 12);
-  ctx.strokeRect(x + w - 20, y + 8, 14, 12);
+  ctx.fillStyle = "#3a2a18";
+  ctx.fillRect(x, y, 12, 14);
+  // glass
+  ctx.fillStyle = "#7ec8e3";
+  ctx.fillRect(x + 1, y + 1, 10, 12);
+  // light reflection
+  ctx.fillStyle = "#a8e0f5";
+  ctx.fillRect(x + 1, y + 1, 10, 3);
+  ctx.fillRect(x + 1, y + 6, 4, 1);
+  // mullions
+  ctx.fillStyle = "#3a2a18";
+  ctx.fillRect(x + 5, y + 1, 1, 12);
+  ctx.fillRect(x + 1, y + 6, 10, 1);
+  // sill
+  ctx.fillStyle = "#8a6a3a";
+  ctx.fillRect(x - 1, y + 14, 14, 2);
 }
 
 function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  // pole
+  // pole (with base)
+  ctx.fillStyle = "#5a5e68";
+  ctx.fillRect(x + 12, y + 14, 4, 32);
   ctx.fillStyle = "#9aa0ad";
-  ctx.fillRect(x + 13, y + 14, 2, 30);
-  // sign box
+  ctx.fillRect(x + 13, y + 14, 1, 32);
+  ctx.fillStyle = "#3a3e48";
+  ctx.fillRect(x + 9, y + 44, 10, 3);
+  // big square sign
   ctx.fillStyle = "#1a2436";
-  ctx.fillRect(x - 8, y, 44, 16);
+  ctx.fillRect(x - 10, y - 4, 48, 22);
+  ctx.fillStyle = "#c93232";
+  ctx.fillRect(x - 8, y - 2, 44, 18);
+  // gold inner
   ctx.fillStyle = "#ffd84a";
-  ctx.fillRect(x - 6, y + 2, 40, 12);
+  ctx.fillRect(x - 7, y - 1, 42, 9);
   ctx.fillStyle = "#1a2436";
-  ctx.font = "6px 'Press Start 2P', monospace";
+  ctx.font = "5px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
-  ctx.fillText("UPGRADE", x + 14, y + 10);
+  ctx.fillText("UPGRADE", x + 14, y + 5);
+  // price LED
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 6, y + 9, 40, 7);
+  ctx.fillStyle = "#62c46a";
+  ctx.font = "5px 'Press Start 2P', monospace";
+  ctx.fillText("E TO OPEN", x + 14, y + 14);
 }
 
 function drawLockedPump(ctx: CanvasRenderingContext2D, x: number, y: number) {

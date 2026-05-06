@@ -107,7 +107,7 @@ export default function GaslighterGame() {
         />
 
         {/* Floating touch controls overlay */}
-        <TouchControls keysRef={keysRef} state={s} />
+        <TouchControls keysRef={keysRef} state={s} onOpenUpgrade={() => { s.upgradeOpen = true; rerender(); }} />
 
         {s.bonusActive > 0 && (
           <div className="absolute top-2 left-1/2 -translate-x-1/2 panel px-3 py-1 pixel-font text-[10px] text-primary text-shadow-pixel">

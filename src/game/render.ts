@@ -93,92 +93,99 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
 // ---------- helpers ----------
 
 function drawGrass(ctx: CanvasRenderingContext2D) {
-  // base grass with subtle gradient bands
-  ctx.fillStyle = "#4B7D1D";
+  // base grass — bright cartoony green like Idle Food Bar
+  ctx.fillStyle = "#7cc04a";
   ctx.fillRect(0, 0, MAP_W * TILE, MAP_H * TILE);
-  // soft tile checker
-  ctx.fillStyle = "#3F6B18";
-  for (let y = 0; y < MAP_H; y++) {
-    for (let x = 0; x < MAP_W; x++) {
-      if ((x + y) % 2 === 0) ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
-    }
+  // soft horizontal bands
+  ctx.fillStyle = "#71b441";
+  for (let y = 0; y < MAP_H * TILE; y += 8) {
+    if ((y / 8) % 2 === 0) ctx.fillRect(0, y, MAP_W * TILE, 4);
   }
-  // darker patch beneath station
-  ctx.fillStyle = "rgba(0,0,0,0.08)";
-  ctx.fillRect(20 * TILE, 7 * TILE, 34 * TILE, 20 * TILE);
-  // pseudo-random grass tufts & flowers (deterministic)
-  for (let i = 0; i < 220; i++) {
+  // tiny grass speckle (deterministic)
+  for (let i = 0; i < 320; i++) {
     const x = (i * 137 + 13) % (MAP_W * TILE);
     const y = (i * 71 + 29) % (MAP_H * TILE);
     if (x > 21 * TILE && x < 53 * TILE && y > 7 * TILE && y < 27 * TILE) continue;
-    const r = (i * 31) % 7;
-    if (r < 4) {
-      ctx.fillStyle = "#4a8a55";
-      ctx.fillRect(x, y, 2, 2);
-      ctx.fillStyle = "#5a9a65";
-      ctx.fillRect(x + 1, y + 1, 1, 1);
-    } else if (r === 4) {
-      // flower white
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(x, y, 2, 2);
-      ctx.fillStyle = "#F9B91B";
-      ctx.fillRect(x, y, 1, 1);
-    } else if (r === 5) {
-      // flower pink
-      ctx.fillStyle = "#ff8ab8";
-      ctx.fillRect(x, y, 2, 2);
-    } else {
-      ctx.fillStyle = "#3a5e1f";
-      ctx.fillRect(x, y, 1, 3);
-    }
+    ctx.fillStyle = i % 3 ? "#8fd05c" : "#5fa036";
+    ctx.fillRect(x, y, 1, 1);
+  }
+  // rounded cartoony bushes lining the station
+  for (let bx = 1; bx < MAP_W - 1; bx += 3) {
+    drawBush(ctx, bx * TILE, 5 * TILE);
+    drawBush(ctx, bx * TILE, 29 * TILE);
+  }
+  for (let by = 9; by < 27; by += 3) {
+    drawBush(ctx, 2 * TILE, by * TILE);
+    drawBush(ctx, 67 * TILE, by * TILE);
   }
 }
 
+function drawBush(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.beginPath();
+  ctx.ellipse(x + 2, y + 9, 13, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#2f6b1f";
+  ctx.beginPath();
+  ctx.arc(x - 6, y + 3, 7, 0, Math.PI * 2);
+  ctx.arc(x + 6, y + 3, 7, 0, Math.PI * 2);
+  ctx.arc(x, y - 1, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#4B7D1D";
+  ctx.beginPath();
+  ctx.arc(x - 5, y + 1, 6, 0, Math.PI * 2);
+  ctx.arc(x + 5, y + 1, 6, 0, Math.PI * 2);
+  ctx.arc(x, y - 3, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#7cc04a";
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x + 3, y - 3, 2, 0, Math.PI * 2);
+  ctx.fill();
+}
+
 function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number) {
-  // dark asphalt
-  ctx.fillStyle = "#23262e";
+  // light cartoony pavement
+  ctx.fillStyle = "#b8b8b8";
   ctx.fillRect(0, y, MAP_W * TILE, h);
-  // asphalt grain (deterministic noise)
-  for (let i = 0; i < 200; i++) {
+  // pavement speckle
+  for (let i = 0; i < 240; i++) {
     const px = (i * 53) % (MAP_W * TILE);
     const py = y + ((i * 17) % h);
-    ctx.fillStyle = i % 3 ? "#2a2d36" : "#1c1f26";
+    ctx.fillStyle = i % 3 ? "#a8a8a8" : "#c8c8c8";
     ctx.fillRect(px, py, 1, 1);
   }
-  // curbs (white + dark)
-  ctx.fillStyle = "#e8eaf0";
-  ctx.fillRect(0, y - 1, MAP_W * TILE, 1);
-  ctx.fillRect(0, y + h, MAP_W * TILE, 1);
-  ctx.fillStyle = "#0e1019";
-  ctx.fillRect(0, y, MAP_W * TILE, 1);
-  ctx.fillRect(0, y + h - 1, MAP_W * TILE, 1);
-  // dashed center line
-  ctx.fillStyle = "#f2cf4d";
-  for (let x = 0; x < MAP_W * TILE; x += 28) {
+  // soft curbs
+  ctx.fillStyle = "#8a8a8a";
+  ctx.fillRect(0, y - 1, MAP_W * TILE, 2);
+  ctx.fillRect(0, y + h - 1, MAP_W * TILE, 2);
+  // subtle dashed center line
+  ctx.fillStyle = "#F9B91B";
+  for (let x = 0; x < MAP_W * TILE; x += 32) {
     ctx.fillRect(x, y + h / 2 - 1, 14, 2);
   }
 }
 
 function drawConcrete(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  // base
-  ctx.fillStyle = "#7d7d7d";
+  // light station pad
+  ctx.fillStyle = "#cfcfcf";
   ctx.fillRect(x, y, w, h);
-  // light highlight band
-  ctx.fillStyle = "#8a8a8a";
+  // top highlight
+  ctx.fillStyle = "#dcdcdc";
   ctx.fillRect(x, y, w, 4);
-  // expansion joints (grid)
-  ctx.fillStyle = "#4d4d4d";
+  // expansion joints
+  ctx.fillStyle = "#9a9a9a";
   for (let i = 0; i <= w; i += 48) ctx.fillRect(x + i, y, 1, h);
   for (let i = 0; i <= h; i += 48) ctx.fillRect(x, y + i, w, 1);
-  // speckle texture
+  // speckle
   for (let i = 0; i < 180; i++) {
     const px = x + ((i * 47) % w);
     const py = y + ((i * 31) % h);
-    ctx.fillStyle = i % 2 ? "#8a8a8a" : "#7a808d";
+    ctx.fillStyle = i % 2 ? "#dcdcdc" : "#b8b8b8";
     ctx.fillRect(px, py, 1, 1);
   }
-  // dark border
-  ctx.fillStyle = "#404040";
+  // soft border
+  ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x, y, w, 2);
   ctx.fillRect(x, y + h - 2, w, 2);
   ctx.fillRect(x, y, 2, h);

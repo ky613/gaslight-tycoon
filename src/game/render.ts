@@ -461,54 +461,143 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
   const x = Math.floor(p.x);
   const y = Math.floor(p.y);
   const bob = Math.floor(Math.sin(p.walkT) * 1);
+  const armSwing = Math.floor(Math.sin(p.walkT) * 2);
 
-  // shadow
-  ctx.fillStyle = "rgba(0,0,0,0.3)";
-  ctx.fillRect(x - 5, y + 8, 10, 2);
+  // round shadow
+  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.fillRect(x - 6, y + 9, 12, 2);
+  ctx.fillRect(x - 5, y + 10, 10, 1);
 
-  // legs
+  // legs (navy with boot toes)
   ctx.fillStyle = "#1f3a6e";
   ctx.fillRect(x - 4, y + 4 + bob, 3, 5);
   ctx.fillRect(x + 1, y + 4 - bob, 3, 5);
+  ctx.fillStyle = "#0e1a3a";
+  ctx.fillRect(x - 4, y + 8 + bob, 3, 1);
+  ctx.fillRect(x + 1, y + 8 - bob, 3, 1);
+  // boots (black)
+  ctx.fillStyle = "#0a0a0a";
+  ctx.fillRect(x - 4, y + 9 + bob, 4, 1);
+  ctx.fillRect(x + 1, y + 9 - bob, 4, 1);
 
-  // body (uniform red)
+  // body coveralls (red) with shading
   ctx.fillStyle = "#c93232";
   ctx.fillRect(x - 5, y - 3, 10, 8);
+  // shadow side
+  ctx.fillStyle = "#a02828";
+  ctx.fillRect(x + 3, y - 3, 2, 8);
+  // highlight
+  ctx.fillStyle = "#e85050";
+  ctx.fillRect(x - 5, y - 3, 1, 8);
+  // chest yellow stripe with name patch
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x - 5, y, 10, 2);
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 4, y, 1, 1);
+  ctx.fillRect(x + 3, y, 1, 1);
+  // collar
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 3, y - 3, 6, 1);
   // belt
   ctx.fillStyle = "#1a1a1a";
-  ctx.fillRect(x - 5, y + 3, 10, 1);
-  // chest stripe
+  ctx.fillRect(x - 5, y + 4, 10, 1);
+  // belt buckle
   ctx.fillStyle = "#ffd84a";
-  ctx.fillRect(x - 5, y, 10, 1);
+  ctx.fillRect(x - 1, y + 4, 2, 1);
+  // pocket
+  ctx.fillStyle = "#a02828";
+  ctx.fillRect(x - 4, y + 2, 3, 2);
 
-  // head
-  ctx.fillStyle = "#f0c896";
-  ctx.fillRect(x - 4, y - 9, 8, 6);
-  // hat
-  ctx.fillStyle = "#1a2436";
-  ctx.fillRect(x - 5, y - 11, 10, 3);
-  ctx.fillStyle = "#ffd84a";
-  ctx.fillRect(x - 1, y - 10, 3, 1);
-
-  // eyes (face direction)
-  ctx.fillStyle = "#1a2436";
-  if (p.facing === "down") {
-    ctx.fillRect(x - 2, y - 6, 1, 1);
-    ctx.fillRect(x + 1, y - 6, 1, 1);
-  } else if (p.facing === "up") {
-    // back of head, no eyes
-  } else if (p.facing === "left") {
-    ctx.fillRect(x - 3, y - 6, 1, 1);
+  // arms (swing)
+  ctx.fillStyle = "#c93232";
+  if (!p.pumping) {
+    ctx.fillRect(x - 7, y - 2 + armSwing, 2, 5);
+    ctx.fillRect(x + 5, y - 2 - armSwing, 2, 5);
+    // gloves
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(x - 7, y + 3 + armSwing, 2, 1);
+    ctx.fillRect(x + 5, y + 3 - armSwing, 2, 1);
   } else {
-    ctx.fillRect(x + 2, y - 6, 1, 1);
+    // both arms forward holding nozzle
+    ctx.fillRect(x - 7, y - 1, 2, 4);
+    ctx.fillRect(x + 5, y - 1, 2, 4);
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(x - 7, y + 3, 2, 1);
+    ctx.fillRect(x + 5, y + 3, 2, 1);
   }
 
-  // pump nozzle in hand if pumping
+  // neck
+  ctx.fillStyle = "#d8a878";
+  ctx.fillRect(x - 2, y - 4, 4, 1);
+
+  // head (face)
+  ctx.fillStyle = "#f0c896";
+  ctx.fillRect(x - 4, y - 10, 8, 7);
+  // jaw shadow
+  ctx.fillStyle = "#d8a878";
+  ctx.fillRect(x - 4, y - 4, 8, 1);
+  // sideburns
+  ctx.fillStyle = "#3a2418";
+  ctx.fillRect(x - 4, y - 7, 1, 3);
+  ctx.fillRect(x + 3, y - 7, 1, 3);
+
+  // cap (red with yellow front and visor)
+  ctx.fillStyle = "#c93232";
+  ctx.fillRect(x - 5, y - 13, 10, 4);
+  ctx.fillStyle = "#e85050";
+  ctx.fillRect(x - 5, y - 13, 10, 1);
+  // hat band
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 5, y - 10, 10, 1);
+  // hat front patch (yellow with G)
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x - 2, y - 12, 4, 2);
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 1, y - 11, 2, 1);
+  // visor by direction
+  ctx.fillStyle = "#1a2436";
+  if (p.facing === "down") {
+    ctx.fillRect(x - 5, y - 9, 10, 1);
+  } else if (p.facing === "left") {
+    ctx.fillRect(x - 7, y - 9, 4, 1);
+  } else if (p.facing === "right") {
+    ctx.fillRect(x + 3, y - 9, 4, 1);
+  } else {
+    ctx.fillRect(x - 5, y - 14, 10, 1);
+  }
+
+  // eyes
+  ctx.fillStyle = "#1a2436";
+  if (p.facing === "down") {
+    ctx.fillRect(x - 2, y - 7, 1, 1);
+    ctx.fillRect(x + 1, y - 7, 1, 1);
+    // smile
+    ctx.fillRect(x - 1, y - 5, 2, 1);
+  } else if (p.facing === "left") {
+    ctx.fillRect(x - 3, y - 7, 1, 1);
+  } else if (p.facing === "right") {
+    ctx.fillRect(x + 2, y - 7, 1, 1);
+  }
+
+  // pump nozzle in hands when pumping
   if (p.pumping) {
-    ctx.fillStyle = "#1a1a1a";
-    ctx.fillRect(x + 4, y, 4, 2);
+    ctx.fillStyle = "#3a3e48";
+    ctx.fillRect(x + 5, y - 1, 6, 3);
     ctx.fillStyle = "#888d9b";
-    ctx.fillRect(x + 7, y + 1, 2, 1);
+    ctx.fillRect(x + 10, y, 2, 1);
+    // hose dangling
+    ctx.strokeStyle = "#0e0e0e";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + 11, y + 2);
+    ctx.quadraticCurveTo(x + 14, y + 6, x + 12, y + 9);
+    ctx.stroke();
+    // fuel sparkle
+    if ((p.walkT * 4) % 1 < 0.5) {
+      ctx.fillStyle = "#ffd84a";
+      ctx.fillRect(x + 12, y - 2, 1, 1);
+      ctx.fillRect(x + 13, y - 1, 1, 1);
+    }
   }
 }
 

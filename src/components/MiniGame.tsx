@@ -5,6 +5,7 @@ export default function MiniGame({ state, onClose }: { state: GameState; onClose
   const mg = state.miniGame!;
   const [, set] = useState(0);
   const lastT = useRef(performance.now());
+  const [shake, setShake] = useState(0);
 
   useEffect(() => {
     let raf = 0;
@@ -21,51 +22,71 @@ export default function MiniGame({ state, onClose }: { state: GameState; onClose
     return () => cancelAnimationFrame(raf);
   }, [mg, onClose]);
 
+  const pump = () => {
+    mg.progress += 1;
+    setShake((n) => n + 1);
+    set((n) => n + 1);
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === " " || e.key.toLowerCase() === "e") {
         e.preventDefault();
-        mg.progress += 1;
-        set((n) => n + 1);
+        pump();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mg]);
+  });
 
   const pct = Math.min(100, (mg.progress / mg.target) * 100);
   const isTire = mg.kind === "tire";
+  const danger = mg.t < 2;
 
   return (
-    <div className="absolute inset-0 bg-background/85 flex items-center justify-center p-4">
-      <div className="panel p-5 max-w-sm w-full pixel-font text-center">
-        <div className="text-primary text-shadow-pixel text-sm mb-2">
-          {isTire ? "🛞 TIRE PUMP!" : "⚡ x2 BONUS ROUND!"}
+    <div className="absolute inset-0 bg-background/90 backdrop-blur-[2px] flex items-center justify-center p-3 z-10">
+      <div
+        className="panel p-4 max-w-sm w-full pixel-font text-center"
+        style={{ transform: `translate(${(shake % 2 ? 1 : -1) * 1}px, 0)` }}
+      >
+        <div className={`text-shadow-pixel text-sm mb-2 ${isTire ? "text-accent" : "text-primary"}`}>
+          {isTire ? "FLAT TIRE!" : "BONUS x2 ROUND!"}
         </div>
-        <div className="text-[9px] text-muted-foreground mb-4">
+        <div className="text-[9px] text-muted-foreground mb-3 leading-relaxed">
           {isTire
-            ? "A flat tire blocks the pump! Mash SPACE to inflate it before time runs out."
-            : "Mash SPACE to unlock 30 seconds of x2 coins & speed!"}
+            ? "Mash PUMP to inflate the tire before time runs out!"
+            : "Mash PUMP to unlock 30s of x2 coins + speed!"}
         </div>
 
-        <div className="mb-4 flex items-center justify-center">
-          <TireOrBolt isTire={isTire} pct={pct} />
+        <div className="mb-3 flex items-center justify-center h-[120px]">
+          {isTire ? <PixelTire pct={pct} /> : <PixelBolt pct={pct} />}
         </div>
 
-        <div className="h-3 w-full bg-secondary border-2 border-border mb-2">
-          <div
-            className="h-full transition-[width] duration-75"
-            style={{ width: `${pct}%`, background: pct > 80 ? "hsl(var(--primary))" : "hsl(var(--accent))" }}
-          />
+        {/* segmented pixel bar */}
+        <div className="flex gap-[2px] mb-2 h-4 border-2 border-border bg-background p-[2px]">
+          {Array.from({ length: 20 }).map((_, i) => {
+            const filled = (i + 1) / 20 <= pct / 100;
+            return (
+              <div
+                key={i}
+                className="flex-1"
+                style={{
+                  background: filled
+                    ? (pct > 80 ? "hsl(var(--primary))" : isTire ? "hsl(var(--accent))" : "hsl(var(--neon-green))")
+                    : "hsl(var(--secondary))",
+                }}
+              />
+            );
+          })}
         </div>
-        <div className="flex justify-between text-[8px] text-muted-foreground">
-          <span>{mg.progress}/{mg.target} pumps</span>
-          <span className={mg.t < 2 ? "text-destructive" : ""}>{mg.t.toFixed(1)}s</span>
+        <div className="flex justify-between text-[8px] text-muted-foreground mb-3">
+          <span>{mg.progress}/{mg.target} PUMPS</span>
+          <span className={danger ? "text-destructive animate-pulse" : ""}>{mg.t.toFixed(1)}s</span>
         </div>
 
         <button
-          className="btn-pixel mt-4 px-4 py-2 text-[10px] w-full"
-          onClick={() => { mg.progress += 1; set((n) => n + 1); }}
+          onPointerDown={(e) => { e.preventDefault(); pump(); }}
+          className="btn-pixel w-full py-3 text-xs"
         >
           PUMP! (SPACE)
         </button>
@@ -74,28 +95,100 @@ export default function MiniGame({ state, onClose }: { state: GameState; onClose
   );
 }
 
-function TireOrBolt({ isTire, pct }: { isTire: boolean; pct: number }) {
-  // pixel-art SVG-ish using divs
-  const size = 80;
+function PixelTire({ pct }: { pct: number }) {
+  // 11x11 grid of pixel "blocks"
+  const size = 11;
+  const cells: string[] = [];
+  const cx = (size - 1) / 2, cy = (size - 1) / 2;
+  const r = 5, ir = 2;
+  // inflation grows
+  const scale = 0.55 + (pct / 100) * 0.45;
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const d = Math.hypot(x - cx, y - cy);
+      let c = "transparent";
+      if (d <= r && d > r - 1.2) c = "hsl(var(--foreground))"; // tread
+      else if (d <= r - 1.2 && d > ir + 0.5) c = "#1a1a1a"; // tire rubber
+      else if (d <= ir + 0.5 && d > ir - 0.6) c = "hsl(var(--muted-foreground))"; // rim
+      else if (d <= ir - 0.6) c = "hsl(var(--secondary))"; // hub
+      cells.push(c);
+    }
+  }
+  // tread marks
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const tx = Math.round(cx + Math.cos(a) * (r - 0.5));
+    const ty = Math.round(cy + Math.sin(a) * (r - 0.5));
+    if (tx >= 0 && tx < size && ty >= 0 && ty < size) {
+      cells[ty * size + tx] = "hsl(var(--muted-foreground))";
+    }
+  }
+
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      {isTire ? (
-        <div
-          className="absolute inset-0 rounded-full border-[10px] border-foreground"
-          style={{
-            transform: `scale(${0.6 + (pct / 100) * 0.4})`,
-            transition: "transform 0.08s",
-            background: "radial-gradient(circle, hsl(var(--secondary)) 30%, hsl(var(--muted)) 60%)",
-          }}
-        />
-      ) : (
-        <div
-          className="absolute inset-0 flex items-center justify-center text-primary"
-          style={{ fontSize: 50, transform: `scale(${0.7 + (pct / 100) * 0.5})`, transition: "transform 0.08s" }}
-        >
-          ⚡
-        </div>
-      )}
+    <div
+      className="grid"
+      style={{
+        gridTemplateColumns: `repeat(${size}, 8px)`,
+        gridTemplateRows: `repeat(${size}, 8px)`,
+        transform: `scale(${scale})`,
+        transition: "transform 80ms ease-out",
+        imageRendering: "pixelated",
+      }}
+    >
+      {cells.map((c, i) => (
+        <div key={i} style={{ width: 8, height: 8, background: c }} />
+      ))}
+    </div>
+  );
+}
+
+function PixelBolt({ pct }: { pct: number }) {
+  // pixel lightning bolt grid (8 wide x 11 tall), filled rows reveal as pct grows
+  const map = [
+    "....11..",
+    "...11...",
+    "..11....",
+    ".111....",
+    "1111111.",
+    "...11...",
+    "..11....",
+    "..11....",
+    ".11.....",
+    "11......",
+    "1.......",
+  ];
+  const reveal = Math.ceil((pct / 100) * map.length);
+  const glow = pct > 80;
+  return (
+    <div className="relative">
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(8, 9px)`,
+          gridTemplateRows: `repeat(${map.length}, 9px)`,
+          imageRendering: "pixelated",
+          filter: glow ? "drop-shadow(0 0 6px hsl(var(--primary)))" : undefined,
+        }}
+      >
+        {map.flatMap((row, ri) =>
+          row.split("").map((ch, ci) => (
+            <div
+              key={`${ri}-${ci}`}
+              style={{
+                width: 9,
+                height: 9,
+                background:
+                  ch === "1" && ri >= map.length - reveal
+                    ? "hsl(var(--primary))"
+                    : ch === "1"
+                    ? "hsl(var(--secondary))"
+                    : "transparent",
+              }}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }

@@ -205,6 +205,24 @@ function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillText("UPGRADE", x + 14, y + 10);
 }
 
+function drawLockedPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.globalAlpha = 0.35;
+  drawPump(ctx, x, y);
+  ctx.globalAlpha = 1;
+  // padlock
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 4, y + 2, 8, 7);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x - 3, y + 3, 6, 5);
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 1, y + 5, 2, 2);
+  // shackle
+  ctx.fillStyle = "#9aa0ad";
+  ctx.fillRect(x - 3, y, 1, 3);
+  ctx.fillRect(x + 2, y, 1, 3);
+  ctx.fillRect(x - 3, y - 1, 6, 1);
+}
+
 function drawPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
   // base
   ctx.fillStyle = "#2a2d34";

@@ -26,13 +26,19 @@ export function drawScene(ctx: CanvasRenderingContext2D, s: GameState, vw: numbe
   drawCanopy(ctx, 23 * TILE, 9 * TILE, 28 * TILE, 4 * TILE);
   drawCanopy(ctx, 23 * TILE, 17 * TILE, 28 * TILE, 4 * TILE);
 
-  // pumps
-  for (const p of PUMPS) drawPump(ctx, p.x, p.y);
+  // pumps (only show unlocked; locked are faded with padlock)
+  const activePumps = 2 + s.upgrades.pumps;
+  for (let i = 0; i < PUMPS.length; i++) {
+    const p = PUMPS[i];
+    if (i < activePumps) drawPump(ctx, p.x, p.y);
+    else drawLockedPump(ctx, p.x, p.y);
+  }
 
-  // parking lines
+  // parking lines (only for unlocked)
   ctx.strokeStyle = "#f8e6a0";
   ctx.lineWidth = 1;
-  for (const sp of PUMP_SPOTS) {
+  for (let i = 0; i < activePumps; i++) {
+    const sp = PUMP_SPOTS[i];
     ctx.strokeRect(sp.x - 14, sp.y - 8, 28, 16);
   }
 
@@ -197,6 +203,24 @@ function drawSign(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.font = "6px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
   ctx.fillText("UPGRADE", x + 14, y + 10);
+}
+
+function drawLockedPump(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.globalAlpha = 0.35;
+  drawPump(ctx, x, y);
+  ctx.globalAlpha = 1;
+  // padlock
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 4, y + 2, 8, 7);
+  ctx.fillStyle = "#ffd84a";
+  ctx.fillRect(x - 3, y + 3, 6, 5);
+  ctx.fillStyle = "#1a2436";
+  ctx.fillRect(x - 1, y + 5, 2, 2);
+  // shackle
+  ctx.fillStyle = "#9aa0ad";
+  ctx.fillRect(x - 3, y, 1, 3);
+  ctx.fillRect(x + 2, y, 1, 3);
+  ctx.fillRect(x - 3, y - 1, 6, 1);
 }
 
 function drawPump(ctx: CanvasRenderingContext2D, x: number, y: number) {

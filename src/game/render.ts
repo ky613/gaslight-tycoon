@@ -62,6 +62,10 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
   // bars above vehicles
   for (const v of s.vehicles) drawVehicleBars(ctx, v);
 
+  // priority indicator above next-priority vehicle (VIP > biggest tank)
+  const priority = pickPriorityVehicle(s.vehicles);
+  if (priority) drawPriorityCrown(ctx, priority);
+
   // shop prompt
   if (s.nearShop) {
     drawPrompt(ctx, SHOP.x, SHOP.y - 36, "PRESS E");

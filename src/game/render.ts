@@ -1,30 +1,22 @@
 import { GameState, Vehicle } from "./state";
+import { LevelTheme } from "./levels";
 import { MAP_H, MAP_W, PUMPS, PUMP_SPOTS, SHOP, TILE } from "./world";
 
 export function drawScene(ctx: CanvasRenderingContext2D, s: GameState, vw: number, vh: number) {
-  // sky/ground background
-  ctx.fillStyle = "#002147";
+  const th = s.levelConfig.theme;
+  ctx.fillStyle = th.sky;
   ctx.fillRect(0, 0, vw, vh);
 
   ctx.save();
   ctx.translate(-Math.floor(s.cam.x), -Math.floor(s.cam.y));
 
-  // grass border
-  drawGrass(ctx);
-
-  // road through middle (horizontal) for cars to enter from left to right
-  drawRoad(ctx, 13 * TILE, 4 * TILE);
-  drawRoad(ctx, 21 * TILE, 4 * TILE);
-
-  // gas station big concrete pad
-  drawConcrete(ctx, 22 * TILE, 8 * TILE, 30 * TILE, 18 * TILE);
-
-  // station building (the "Gaslighter" shop with awning) on the left under shop position
-  drawShop(ctx);
-
-  // big canopy over pumps
-  drawCanopy(ctx, 23 * TILE, 9 * TILE, 28 * TILE, 4 * TILE);
-  drawCanopy(ctx, 23 * TILE, 17 * TILE, 28 * TILE, 4 * TILE);
+  drawGrass(ctx, th);
+  drawRoad(ctx, 13 * TILE, 4 * TILE, th);
+  drawRoad(ctx, 21 * TILE, 4 * TILE, th);
+  drawConcrete(ctx, 22 * TILE, 8 * TILE, 30 * TILE, 18 * TILE, th);
+  drawShop(ctx, th);
+  drawCanopy(ctx, 23 * TILE, 9 * TILE, 28 * TILE, 4 * TILE, th, s.levelConfig.theme.signTitle);
+  drawCanopy(ctx, 23 * TILE, 17 * TILE, 28 * TILE, 4 * TILE, th, s.levelConfig.theme.signTitle);
 
   // pumps (only show unlocked; locked are faded with padlock)
   const activePumps = 2 + s.upgrades.pumps;
@@ -70,6 +62,10 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
   // bars above vehicles
   for (const v of s.vehicles) drawVehicleBars(ctx, v);
 
+  // priority indicator above next-priority vehicle (VIP > biggest tank)
+  const priority = pickPriorityVehicle(s.vehicles);
+  if (priority) drawPriorityCrown(ctx, priority);
+
   // shop prompt
   if (s.nearShop) {
     drawPrompt(ctx, SHOP.x, SHOP.y - 36, "PRESS E");
@@ -92,24 +88,20 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
 
 // ---------- helpers ----------
 
-function drawGrass(ctx: CanvasRenderingContext2D) {
-  // base grass — bright cartoony green like Idle Food Bar
-  ctx.fillStyle = "#7cc04a";
+function drawGrass(ctx: CanvasRenderingContext2D, th: LevelTheme) {
+  ctx.fillStyle = th.grass;
   ctx.fillRect(0, 0, MAP_W * TILE, MAP_H * TILE);
-  // soft horizontal bands
-  ctx.fillStyle = "#71b441";
+  ctx.fillStyle = shadeHex(th.grass, -10);
   for (let y = 0; y < MAP_H * TILE; y += 8) {
     if ((y / 8) % 2 === 0) ctx.fillRect(0, y, MAP_W * TILE, 4);
   }
-  // tiny grass speckle (deterministic)
   for (let i = 0; i < 320; i++) {
     const x = (i * 137 + 13) % (MAP_W * TILE);
     const y = (i * 71 + 29) % (MAP_H * TILE);
     if (x > 21 * TILE && x < 53 * TILE && y > 7 * TILE && y < 27 * TILE) continue;
-    ctx.fillStyle = i % 3 ? "#8fd05c" : "#5fa036";
+    ctx.fillStyle = i % 3 ? shadeHex(th.grass, 14) : shadeHex(th.grass, -22);
     ctx.fillRect(x, y, 1, 1);
   }
-  // rounded cartoony bushes lining the station
   for (let bx = 1; bx < MAP_W - 1; bx += 3) {
     drawBush(ctx, bx * TILE, 5 * TILE);
     drawBush(ctx, bx * TILE, 29 * TILE);
@@ -144,123 +136,103 @@ function drawBush(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fill();
 }
 
-function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number) {
-  // light cartoony pavement
-  ctx.fillStyle = "#b8b8b8";
+function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number, th: LevelTheme) {
+  const base = th.era === "mega" ? "#2a2a35" : th.era === "bote-bote" ? "#a08858" : "#b8b8b8";
+  ctx.fillStyle = base;
   ctx.fillRect(0, y, MAP_W * TILE, h);
-  // pavement speckle
   for (let i = 0; i < 240; i++) {
     const px = (i * 53) % (MAP_W * TILE);
     const py = y + ((i * 17) % h);
-    ctx.fillStyle = i % 3 ? "#a8a8a8" : "#c8c8c8";
+    ctx.fillStyle = i % 3 ? shadeHex(base, -10) : shadeHex(base, 14);
     ctx.fillRect(px, py, 1, 1);
   }
-  // soft curbs
-  ctx.fillStyle = "#8a8a8a";
+  ctx.fillStyle = shadeHex(base, -25);
   ctx.fillRect(0, y - 1, MAP_W * TILE, 2);
   ctx.fillRect(0, y + h - 1, MAP_W * TILE, 2);
-  // subtle dashed center line
-  ctx.fillStyle = "#F9B91B";
+  ctx.fillStyle = th.era === "mega" ? "#ff2bd6" : "#F9B91B";
   for (let x = 0; x < MAP_W * TILE; x += 32) {
     ctx.fillRect(x, y + h / 2 - 1, 14, 2);
   }
 }
 
-function drawConcrete(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  // light station pad
-  ctx.fillStyle = "#cfcfcf";
+function drawConcrete(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, th: LevelTheme) {
+  const base = th.pad;
+  ctx.fillStyle = base;
   ctx.fillRect(x, y, w, h);
-  // top highlight
-  ctx.fillStyle = "#dcdcdc";
+  ctx.fillStyle = shadeHex(base, 12);
   ctx.fillRect(x, y, w, 4);
-  // expansion joints
-  ctx.fillStyle = "#9a9a9a";
+  ctx.fillStyle = shadeHex(base, -25);
   for (let i = 0; i <= w; i += 48) ctx.fillRect(x + i, y, 1, h);
   for (let i = 0; i <= h; i += 48) ctx.fillRect(x, y + i, w, 1);
-  // speckle
   for (let i = 0; i < 180; i++) {
     const px = x + ((i * 47) % w);
     const py = y + ((i * 31) % h);
-    ctx.fillStyle = i % 2 ? "#dcdcdc" : "#b8b8b8";
+    ctx.fillStyle = i % 2 ? shadeHex(base, 12) : shadeHex(base, -12);
     ctx.fillRect(px, py, 1, 1);
   }
-  // soft border
-  ctx.fillStyle = "#8a8a8a";
+  ctx.fillStyle = shadeHex(base, -30);
   ctx.fillRect(x, y, w, 2);
   ctx.fillRect(x, y + h - 2, w, 2);
   ctx.fillRect(x, y, 2, h);
   ctx.fillRect(x + w - 2, y, 2, h);
 }
 
-function drawCanopy(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  // ground shadow
+function drawCanopy(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, th: LevelTheme, title: string) {
   ctx.fillStyle = "rgba(0,0,0,0.28)";
   ctx.fillRect(x + 3, y + h + 1, w, 5);
-  // pillars (4 supports)
   ctx.fillStyle = "#cdd2db";
   ctx.fillRect(x + 2, y + h, 5, 12);
   ctx.fillRect(x + w - 7, y + h, 5, 12);
   ctx.fillRect(x + Math.floor(w / 2) - 8, y + h, 5, 12);
   ctx.fillRect(x + Math.floor(w / 2) + 3, y + h, 5, 12);
-  // pillar shadow side
   ctx.fillStyle = "#8a8a8a";
   ctx.fillRect(x + 6, y + h, 1, 12);
   ctx.fillRect(x + w - 3, y + h, 1, 12);
-  // pillar bases (concrete)
   ctx.fillStyle = "#595959";
   ctx.fillRect(x + 1, y + h + 11, 7, 2);
   ctx.fillRect(x + w - 8, y + h + 11, 7, 2);
   ctx.fillRect(x + Math.floor(w / 2) - 9, y + h + 11, 7, 2);
   ctx.fillRect(x + Math.floor(w / 2) + 2, y + h + 11, 7, 2);
-  // roof main
-  ctx.fillStyle = "#ED1C24";
+  ctx.fillStyle = th.canopy;
   ctx.fillRect(x, y, w, h);
-  // roof top highlight
-  ctx.fillStyle = "#F04040";
+  ctx.fillStyle = shadeHex(th.canopy, 18);
   ctx.fillRect(x, y, w, 2);
-  // white stripe
   ctx.fillStyle = "#F7F9F9";
   ctx.fillRect(x, y + h - 5, w, 2);
-  // bottom shadow band
-  ctx.fillStyle = "#660011";
+  ctx.fillStyle = th.canopyTrim;
   ctx.fillRect(x, y + h - 2, w, 2);
-  // logo plate in middle
-  const lx = x + Math.floor(w / 2) - 14, ly = y + 1;
+  const lx = x + Math.floor(w / 2) - 18, ly = y + 1;
   ctx.fillStyle = "#002147";
-  ctx.fillRect(lx, ly, 28, h - 4);
+  ctx.fillRect(lx, ly, 36, h - 4);
   ctx.fillStyle = "#F9B91B";
-  ctx.fillRect(lx + 1, ly + 1, 26, h - 6);
+  ctx.fillRect(lx + 1, ly + 1, 34, h - 6);
   ctx.fillStyle = "#002147";
   ctx.font = "5px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
-  ctx.fillText("GASLIGHTER", lx + 14, ly + Math.floor(h / 2) + 1);
+  ctx.fillText(title, lx + 18, ly + Math.floor(h / 2) + 1);
 }
 
-function drawShop(ctx: CanvasRenderingContext2D) {
+function drawShop(ctx: CanvasRenderingContext2D, th: LevelTheme) {
   const x = SHOP.x - 32, y = SHOP.y - 30, w = 64, h = 56;
   // ground shadow
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(x + 2, y + h, w, 4);
   // back wall (cream brick)
-  ctx.fillStyle = "#e6dcc0";
+  ctx.fillStyle = th.shopWall;
   ctx.fillRect(x, y, w, h);
-  // brick rows
-  ctx.fillStyle = "#d4c8a8";
+  ctx.fillStyle = shadeHex(th.shopWall, -10);
   for (let i = 0; i < h; i += 4) ctx.fillRect(x, y + i, w, 1);
-  // wall trim (bottom)
-  ctx.fillStyle = "#8a6a3a";
+  ctx.fillStyle = shadeHex(th.shopWall, -35);
   ctx.fillRect(x, y + h - 4, w, 4);
-  ctx.fillStyle = "#a88550";
+  ctx.fillStyle = shadeHex(th.shopWall, -20);
   ctx.fillRect(x, y + h - 4, w, 1);
-  // roof slab
-  ctx.fillStyle = "#660011";
+  ctx.fillStyle = th.shopRoof;
   ctx.fillRect(x - 3, y - 8, w + 6, 10);
-  ctx.fillStyle = "#990018";
+  ctx.fillStyle = shadeHex(th.shopRoof, 20);
   ctx.fillRect(x - 3, y - 8, w + 6, 6);
-  ctx.fillStyle = "#c44545";
+  ctx.fillStyle = shadeHex(th.shopRoof, 40);
   ctx.fillRect(x - 3, y - 8, w + 6, 2);
-  // roof tile lines
-  ctx.fillStyle = "#660011";
+  ctx.fillStyle = th.shopRoof;
   for (let i = 0; i < w + 6; i += 6) ctx.fillRect(x - 3 + i, y - 8, 1, 6);
   // sign awning
   ctx.fillStyle = "#002147";
@@ -573,6 +545,24 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
     ctx.fillRect(x - 5, y - 14, 10, 1);
   }
 
+  // girl: ponytail + bow
+  if (s.character === "girl") {
+    ctx.fillStyle = "#3a2418";
+    ctx.fillRect(x - 6, y - 6, 1, 5);
+    ctx.fillRect(x - 7, y - 4, 1, 4);
+    ctx.fillRect(x + 5, y - 6, 1, 5);
+    ctx.fillRect(x + 6, y - 4, 1, 4);
+    // bow
+    ctx.fillStyle = "#ED1C24";
+    ctx.fillRect(x - 3, y - 13, 2, 2);
+    ctx.fillRect(x + 1, y - 13, 2, 2);
+    ctx.fillStyle = "#F9B91B";
+    ctx.fillRect(x - 1, y - 12, 2, 1);
+    // earrings
+    ctx.fillStyle = "#F9B91B";
+    ctx.fillRect(x - 5, y - 6, 1, 1);
+    ctx.fillRect(x + 4, y - 6, 1, 1);
+  }
   // eyes
   ctx.fillStyle = "#002147";
   if (p.facing === "down") {
@@ -730,6 +720,14 @@ function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillRect(x - 1, y - 1, 2, 2);
 }
 
+function shadeHex(hex: string, amt: number) {
+  const c = hex.replace("#", "");
+  const r = Math.max(0, Math.min(255, parseInt(c.substring(0, 2), 16) + amt));
+  const g = Math.max(0, Math.min(255, parseInt(c.substring(2, 4), 16) + amt));
+  const b = Math.max(0, Math.min(255, parseInt(c.substring(4, 6), 16) + amt));
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
+
 function shade(hex: string, amt: number) {
   const c = hex.replace("#", "");
   const r = Math.max(0, Math.min(255, parseInt(c.substring(0, 2), 16) + amt));
@@ -767,6 +765,29 @@ function drawVehicleBars(ctx: CanvasRenderingContext2D, v: Vehicle) {
   ctx.fillRect(x - 13, y + 12, 26, 3);
   ctx.fillStyle = pct > 0.5 ? "#62c46a" : pct > 0.25 ? "#f0b03e" : "#F04040";
   ctx.fillRect(x - 12, y + 13, Math.floor(pct * 24), 1);
+
+  // anger emoji when patience low
+  if (pct < 0.4 && (v.state === "waiting" || v.state === "pumping")) {
+    const ay = y - 10;
+    const t = performance.now() / 80;
+    const sh = Math.floor(Math.sin(t) * 1);
+    ctx.fillStyle = "#ED1C24";
+    ctx.fillRect(x - 4 + sh, ay, 8, 7);
+    ctx.fillStyle = "#F04040";
+    ctx.fillRect(x - 4 + sh, ay, 8, 1);
+    // angry brows
+    ctx.fillStyle = "#0a0a0a";
+    ctx.fillRect(x - 3 + sh, ay + 2, 2, 1);
+    ctx.fillRect(x + 1 + sh, ay + 2, 2, 1);
+    // mouth
+    ctx.fillRect(x - 2 + sh, ay + 5, 4, 1);
+    // steam
+    if (pct < 0.2) {
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.fillRect(x - 6 + sh, ay - 2, 1, 1);
+      ctx.fillRect(x + 5 + sh, ay - 2, 1, 1);
+    }
+  }
 }
 
 function drawPrompt(ctx: CanvasRenderingContext2D, x: number, y: number, text: string) {
@@ -776,4 +797,47 @@ function drawPrompt(ctx: CanvasRenderingContext2D, x: number, y: number, text: s
   ctx.font = "6px 'Press Start 2P', monospace";
   ctx.textAlign = "center";
   ctx.fillText(text, x, y);
+}
+
+export function pickPriorityVehicle(vs: Vehicle[]): Vehicle | null {
+  const ready = vs.filter((v) => v.state === "waiting" || v.state === "pumping");
+  if (!ready.length) return null;
+  // VIPs first, then biggest tank
+  ready.sort((a, b) => {
+    if (a.vip !== b.vip) return a.vip ? -1 : 1;
+    return b.tank - a.tank;
+  });
+  return ready[0];
+}
+
+function drawPriorityCrown(ctx: CanvasRenderingContext2D, v: Vehicle) {
+  const x = Math.floor(v.x);
+  const y = Math.floor(v.y) - (v.kind === "bus" || v.kind === "truck" || v.kind === "limo" ? 36 : 30);
+  // bobbing
+  const bob = Math.floor(Math.sin(performance.now() / 220) * 1);
+  const yy = y + bob;
+  // arrow
+  ctx.fillStyle = "#F9B91B";
+  ctx.fillRect(x - 4, yy + 4, 8, 2);
+  ctx.fillRect(x - 3, yy + 6, 6, 1);
+  ctx.fillRect(x - 2, yy + 7, 4, 1);
+  ctx.fillRect(x - 1, yy + 8, 2, 1);
+  // crown body
+  ctx.fillStyle = v.vip ? "#F9B91B" : "#43B2D6";
+  ctx.fillRect(x - 5, yy + 1, 10, 3);
+  ctx.fillStyle = v.vip ? "#fff5b8" : "#a0e0f0";
+  ctx.fillRect(x - 5, yy + 1, 10, 1);
+  // crown spikes
+  ctx.fillStyle = v.vip ? "#F9B91B" : "#43B2D6";
+  ctx.fillRect(x - 5, yy - 1, 2, 2);
+  ctx.fillRect(x - 1, yy - 2, 2, 3);
+  ctx.fillRect(x + 3, yy - 1, 2, 2);
+  // gem
+  ctx.fillStyle = v.vip ? "#ED1C24" : "#1D55A4";
+  ctx.fillRect(x - 1, yy + 2, 2, 1);
+  // label
+  ctx.fillStyle = "#002147";
+  ctx.font = "5px 'Press Start 2P', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(v.vip ? "VIP" : "BIG", x, yy - 4);
 }

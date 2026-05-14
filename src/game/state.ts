@@ -1,6 +1,9 @@
 import { SHOP, TILE, MAP_H, MAP_W } from "./world";
+import { LEVELS, levelOf, LevelConfig } from "./levels";
 
 export type VehicleKind = "car" | "van" | "truck" | "bus" | "limo";
+export type Character = "boy" | "girl";
+export type Phase = "character" | "intro" | "playing" | "result";
 
 export interface Vehicle {
   x: number;
@@ -16,6 +19,7 @@ export interface Vehicle {
   kind: VehicleKind;
   color: string;
   dead: boolean;
+  rageQuit?: boolean; // marked when leaving angry
 }
 
 export interface Player {
@@ -27,24 +31,38 @@ export interface Player {
 }
 
 export interface Upgrades {
-  pumpSpeed: number; // increases fuel/sec
-  walk: number;     // walk speed
-  pumps: number;    // max simultaneous cars
-  coinMult: number; // coin multiplier
+  pumpSpeed: number;
+  walk: number;
+  pumps: number;
+  coinMult: number;
 }
 
 export interface MiniGameState {
   kind: "tire" | "bonus";
-  t: number;        // time remaining
-  progress: number; // presses
-  target: number;   // presses needed
+  t: number;
+  progress: number;
+  target: number;
+}
+
+export interface LevelStats {
+  coins: number;
+  vipsServed: number;
+  rageQuits: number;
+  elapsed: number;
 }
 
 export interface GameState {
+  phase: Phase;
+  character: Character;
+  level: number; // 1..10
+  levelConfig: LevelConfig;
+  levelStats: LevelStats;
+  levelResult: "win" | "lose" | null;
+
   player: Player;
   vehicles: Vehicle[];
   cam: { x: number; y: number };
-  coins: number;
+  coins: number; // resets per level
   served: number;
   shop: { x: number; y: number };
   upgrades: Upgrades;
@@ -53,12 +71,19 @@ export interface GameState {
   upgradeOpen: boolean;
   nearShop: boolean;
   miniGame: MiniGameState | null;
-  bonusActive: number; // seconds remaining of x2
+  bonusActive: number;
   lastWasVip: boolean;
 }
 
 export function createInitialState(): GameState {
+  const cfg = levelOf(1);
   return {
+    phase: "character",
+    character: "boy",
+    level: 1,
+    levelConfig: cfg,
+    levelStats: { coins: 0, vipsServed: 0, rageQuits: 0, elapsed: 0 },
+    levelResult: null,
     player: { x: 32 * TILE, y: 18 * TILE, facing: "down", walkT: 0, pumping: false },
     vehicles: [],
     cam: { x: 0, y: 0 },
@@ -76,4 +101,25 @@ export function createInitialState(): GameState {
   };
 }
 
+export function startLevel(s: GameState, n: number) {
+  const cfg = levelOf(n);
+  s.level = n;
+  s.levelConfig = cfg;
+  s.levelStats = { coins: 0, vipsServed: 0, rageQuits: 0, elapsed: 0 };
+  s.levelResult = null;
+  s.vehicles = [];
+  s.coins = 0;
+  s.served = 0;
+  s.upgrades = { pumpSpeed: 0, walk: 0, pumps: 0, coinMult: 0 };
+  s.spawnTimer = 1.2;
+  s.eventTimer = 20 + Math.random() * 10;
+  s.bonusActive = 0;
+  s.miniGame = null;
+  s.upgradeOpen = false;
+  s.player.x = 32 * TILE;
+  s.player.y = 18 * TILE;
+  s.phase = "playing";
+}
+
+export const TOTAL_LEVELS = LEVELS.length;
 export const MAP_PIXELS = { w: MAP_W * TILE, h: MAP_H * TILE };

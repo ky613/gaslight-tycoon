@@ -698,6 +698,14 @@ function drawWheel(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fillRect(x - 1, y - 1, 2, 2);
 }
 
+function shadeHex(hex: string, amt: number) {
+  const c = hex.replace("#", "");
+  const r = Math.max(0, Math.min(255, parseInt(c.substring(0, 2), 16) + amt));
+  const g = Math.max(0, Math.min(255, parseInt(c.substring(2, 4), 16) + amt));
+  const b = Math.max(0, Math.min(255, parseInt(c.substring(4, 6), 16) + amt));
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
+
 function shade(hex: string, amt: number) {
   const c = hex.replace("#", "");
   const r = Math.max(0, Math.min(255, parseInt(c.substring(0, 2), 16) + amt));

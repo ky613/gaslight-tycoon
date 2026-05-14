@@ -757,3 +757,46 @@ function drawPrompt(ctx: CanvasRenderingContext2D, x: number, y: number, text: s
   ctx.textAlign = "center";
   ctx.fillText(text, x, y);
 }
+
+export function pickPriorityVehicle(vs: Vehicle[]): Vehicle | null {
+  const ready = vs.filter((v) => v.state === "waiting" || v.state === "pumping");
+  if (!ready.length) return null;
+  // VIPs first, then biggest tank
+  ready.sort((a, b) => {
+    if (a.vip !== b.vip) return a.vip ? -1 : 1;
+    return b.tank - a.tank;
+  });
+  return ready[0];
+}
+
+function drawPriorityCrown(ctx: CanvasRenderingContext2D, v: Vehicle) {
+  const x = Math.floor(v.x);
+  const y = Math.floor(v.y) - (v.kind === "bus" || v.kind === "truck" || v.kind === "limo" ? 36 : 30);
+  // bobbing
+  const bob = Math.floor(Math.sin(performance.now() / 220) * 1);
+  const yy = y + bob;
+  // arrow
+  ctx.fillStyle = "#F9B91B";
+  ctx.fillRect(x - 4, yy + 4, 8, 2);
+  ctx.fillRect(x - 3, yy + 6, 6, 1);
+  ctx.fillRect(x - 2, yy + 7, 4, 1);
+  ctx.fillRect(x - 1, yy + 8, 2, 1);
+  // crown body
+  ctx.fillStyle = v.vip ? "#F9B91B" : "#43B2D6";
+  ctx.fillRect(x - 5, yy + 1, 10, 3);
+  ctx.fillStyle = v.vip ? "#fff5b8" : "#a0e0f0";
+  ctx.fillRect(x - 5, yy + 1, 10, 1);
+  // crown spikes
+  ctx.fillStyle = v.vip ? "#F9B91B" : "#43B2D6";
+  ctx.fillRect(x - 5, yy - 1, 2, 2);
+  ctx.fillRect(x - 1, yy - 2, 2, 3);
+  ctx.fillRect(x + 3, yy - 1, 2, 2);
+  // gem
+  ctx.fillStyle = v.vip ? "#ED1C24" : "#1D55A4";
+  ctx.fillRect(x - 1, yy + 2, 2, 1);
+  // label
+  ctx.fillStyle = "#002147";
+  ctx.font = "5px 'Press Start 2P', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(v.vip ? "VIP" : "BIG", x, yy - 4);
+}

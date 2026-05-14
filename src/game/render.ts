@@ -747,6 +747,29 @@ function drawVehicleBars(ctx: CanvasRenderingContext2D, v: Vehicle) {
   ctx.fillRect(x - 13, y + 12, 26, 3);
   ctx.fillStyle = pct > 0.5 ? "#62c46a" : pct > 0.25 ? "#f0b03e" : "#F04040";
   ctx.fillRect(x - 12, y + 13, Math.floor(pct * 24), 1);
+
+  // anger emoji when patience low
+  if (pct < 0.4 && (v.state === "waiting" || v.state === "pumping")) {
+    const ay = y - 10;
+    const t = performance.now() / 80;
+    const sh = Math.floor(Math.sin(t) * 1);
+    ctx.fillStyle = "#ED1C24";
+    ctx.fillRect(x - 4 + sh, ay, 8, 7);
+    ctx.fillStyle = "#F04040";
+    ctx.fillRect(x - 4 + sh, ay, 8, 1);
+    // angry brows
+    ctx.fillStyle = "#0a0a0a";
+    ctx.fillRect(x - 3 + sh, ay + 2, 2, 1);
+    ctx.fillRect(x + 1 + sh, ay + 2, 2, 1);
+    // mouth
+    ctx.fillRect(x - 2 + sh, ay + 5, 4, 1);
+    // steam
+    if (pct < 0.2) {
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.fillRect(x - 6 + sh, ay - 2, 1, 1);
+      ctx.fillRect(x + 5 + sh, ay - 2, 1, 1);
+    }
+  }
 }
 
 function drawPrompt(ctx: CanvasRenderingContext2D, x: number, y: number, text: string) {

@@ -1,30 +1,22 @@
 import { GameState, Vehicle } from "./state";
+import { LevelTheme } from "./levels";
 import { MAP_H, MAP_W, PUMPS, PUMP_SPOTS, SHOP, TILE } from "./world";
 
 export function drawScene(ctx: CanvasRenderingContext2D, s: GameState, vw: number, vh: number) {
-  // sky/ground background
-  ctx.fillStyle = "#002147";
+  const th = s.levelConfig.theme;
+  ctx.fillStyle = th.sky;
   ctx.fillRect(0, 0, vw, vh);
 
   ctx.save();
   ctx.translate(-Math.floor(s.cam.x), -Math.floor(s.cam.y));
 
-  // grass border
-  drawGrass(ctx);
-
-  // road through middle (horizontal) for cars to enter from left to right
-  drawRoad(ctx, 13 * TILE, 4 * TILE);
-  drawRoad(ctx, 21 * TILE, 4 * TILE);
-
-  // gas station big concrete pad
-  drawConcrete(ctx, 22 * TILE, 8 * TILE, 30 * TILE, 18 * TILE);
-
-  // station building (the "Gaslighter" shop with awning) on the left under shop position
-  drawShop(ctx);
-
-  // big canopy over pumps
-  drawCanopy(ctx, 23 * TILE, 9 * TILE, 28 * TILE, 4 * TILE);
-  drawCanopy(ctx, 23 * TILE, 17 * TILE, 28 * TILE, 4 * TILE);
+  drawGrass(ctx, th);
+  drawRoad(ctx, 13 * TILE, 4 * TILE, th);
+  drawRoad(ctx, 21 * TILE, 4 * TILE, th);
+  drawConcrete(ctx, 22 * TILE, 8 * TILE, 30 * TILE, 18 * TILE, th);
+  drawShop(ctx, th);
+  drawCanopy(ctx, 23 * TILE, 9 * TILE, 28 * TILE, 4 * TILE, th, s.levelConfig.theme.signTitle);
+  drawCanopy(ctx, 23 * TILE, 17 * TILE, 28 * TILE, 4 * TILE, th, s.levelConfig.theme.signTitle);
 
   // pumps (only show unlocked; locked are faded with padlock)
   const activePumps = 2 + s.upgrades.pumps;

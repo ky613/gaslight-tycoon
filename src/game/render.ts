@@ -545,6 +545,24 @@ function drawPlayer(ctx: CanvasRenderingContext2D, s: GameState) {
     ctx.fillRect(x - 5, y - 14, 10, 1);
   }
 
+  // girl: ponytail + bow
+  if (s.character === "girl") {
+    ctx.fillStyle = "#3a2418";
+    ctx.fillRect(x - 6, y - 6, 1, 5);
+    ctx.fillRect(x - 7, y - 4, 1, 4);
+    ctx.fillRect(x + 5, y - 6, 1, 5);
+    ctx.fillRect(x + 6, y - 4, 1, 4);
+    // bow
+    ctx.fillStyle = "#ED1C24";
+    ctx.fillRect(x - 3, y - 13, 2, 2);
+    ctx.fillRect(x + 1, y - 13, 2, 2);
+    ctx.fillStyle = "#F9B91B";
+    ctx.fillRect(x - 1, y - 12, 2, 1);
+    // earrings
+    ctx.fillStyle = "#F9B91B";
+    ctx.fillRect(x - 5, y - 6, 1, 1);
+    ctx.fillRect(x + 4, y - 6, 1, 1);
+  }
   // eyes
   ctx.fillStyle = "#002147";
   if (p.facing === "down") {

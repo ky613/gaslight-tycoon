@@ -84,24 +84,20 @@ export function drawSprites(ctx: CanvasRenderingContext2D, s: GameState) {
 
 // ---------- helpers ----------
 
-function drawGrass(ctx: CanvasRenderingContext2D) {
-  // base grass — bright cartoony green like Idle Food Bar
-  ctx.fillStyle = "#7cc04a";
+function drawGrass(ctx: CanvasRenderingContext2D, th: LevelTheme) {
+  ctx.fillStyle = th.grass;
   ctx.fillRect(0, 0, MAP_W * TILE, MAP_H * TILE);
-  // soft horizontal bands
-  ctx.fillStyle = "#71b441";
+  ctx.fillStyle = shadeHex(th.grass, -10);
   for (let y = 0; y < MAP_H * TILE; y += 8) {
     if ((y / 8) % 2 === 0) ctx.fillRect(0, y, MAP_W * TILE, 4);
   }
-  // tiny grass speckle (deterministic)
   for (let i = 0; i < 320; i++) {
     const x = (i * 137 + 13) % (MAP_W * TILE);
     const y = (i * 71 + 29) % (MAP_H * TILE);
     if (x > 21 * TILE && x < 53 * TILE && y > 7 * TILE && y < 27 * TILE) continue;
-    ctx.fillStyle = i % 3 ? "#8fd05c" : "#5fa036";
+    ctx.fillStyle = i % 3 ? shadeHex(th.grass, 14) : shadeHex(th.grass, -22);
     ctx.fillRect(x, y, 1, 1);
   }
-  // rounded cartoony bushes lining the station
   for (let bx = 1; bx < MAP_W - 1; bx += 3) {
     drawBush(ctx, bx * TILE, 5 * TILE);
     drawBush(ctx, bx * TILE, 29 * TILE);
@@ -136,23 +132,20 @@ function drawBush(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fill();
 }
 
-function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number) {
-  // light cartoony pavement
-  ctx.fillStyle = "#b8b8b8";
+function drawRoad(ctx: CanvasRenderingContext2D, y: number, h: number, th: LevelTheme) {
+  const base = th.era === "mega" ? "#2a2a35" : th.era === "bote-bote" ? "#a08858" : "#b8b8b8";
+  ctx.fillStyle = base;
   ctx.fillRect(0, y, MAP_W * TILE, h);
-  // pavement speckle
   for (let i = 0; i < 240; i++) {
     const px = (i * 53) % (MAP_W * TILE);
     const py = y + ((i * 17) % h);
-    ctx.fillStyle = i % 3 ? "#a8a8a8" : "#c8c8c8";
+    ctx.fillStyle = i % 3 ? shadeHex(base, -10) : shadeHex(base, 14);
     ctx.fillRect(px, py, 1, 1);
   }
-  // soft curbs
-  ctx.fillStyle = "#8a8a8a";
+  ctx.fillStyle = shadeHex(base, -25);
   ctx.fillRect(0, y - 1, MAP_W * TILE, 2);
   ctx.fillRect(0, y + h - 1, MAP_W * TILE, 2);
-  // subtle dashed center line
-  ctx.fillStyle = "#F9B91B";
+  ctx.fillStyle = th.era === "mega" ? "#ff2bd6" : "#F9B91B";
   for (let x = 0; x < MAP_W * TILE; x += 32) {
     ctx.fillRect(x, y + h / 2 - 1, 14, 2);
   }

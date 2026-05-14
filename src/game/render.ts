@@ -214,25 +214,21 @@ function drawShop(ctx: CanvasRenderingContext2D, th: LevelTheme) {
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(x + 2, y + h, w, 4);
   // back wall (cream brick)
-  ctx.fillStyle = "#e6dcc0";
+  ctx.fillStyle = th.shopWall;
   ctx.fillRect(x, y, w, h);
-  // brick rows
-  ctx.fillStyle = "#d4c8a8";
+  ctx.fillStyle = shadeHex(th.shopWall, -10);
   for (let i = 0; i < h; i += 4) ctx.fillRect(x, y + i, w, 1);
-  // wall trim (bottom)
-  ctx.fillStyle = "#8a6a3a";
+  ctx.fillStyle = shadeHex(th.shopWall, -35);
   ctx.fillRect(x, y + h - 4, w, 4);
-  ctx.fillStyle = "#a88550";
+  ctx.fillStyle = shadeHex(th.shopWall, -20);
   ctx.fillRect(x, y + h - 4, w, 1);
-  // roof slab
-  ctx.fillStyle = "#660011";
+  ctx.fillStyle = th.shopRoof;
   ctx.fillRect(x - 3, y - 8, w + 6, 10);
-  ctx.fillStyle = "#990018";
+  ctx.fillStyle = shadeHex(th.shopRoof, 20);
   ctx.fillRect(x - 3, y - 8, w + 6, 6);
-  ctx.fillStyle = "#c44545";
+  ctx.fillStyle = shadeHex(th.shopRoof, 40);
   ctx.fillRect(x - 3, y - 8, w + 6, 2);
-  // roof tile lines
-  ctx.fillStyle = "#660011";
+  ctx.fillStyle = th.shopRoof;
   for (let i = 0; i < w + 6; i += 6) ctx.fillRect(x - 3 + i, y - 8, 1, 6);
   // sign awning
   ctx.fillStyle = "#002147";
